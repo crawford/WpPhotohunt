@@ -16,6 +16,7 @@ namespace Photohunt
         #region ViewModels
 
         private static MainViewModel _mainViewModel = null;
+        private static PhotoInfoViewModel _photoInfoViewModel = null;
 
         // Easy access to the viewmodels
         public static MainViewModel MainViewModel
@@ -29,24 +30,49 @@ namespace Photohunt
             }
         }
 
+        public static PhotoInfoViewModel PhotoInfoViewModel
+        {
+            get
+            {
+                if (_photoInfoViewModel == null)
+                    _photoInfoViewModel = new PhotoInfoViewModel();
+
+                return _photoInfoViewModel;
+            }
+        }
+
         #endregion
 
         #region Services
 
-        private static ContestService _photoService = null;
+        private static ContestService _contestService = null;
+        private static SettingsService _settingsService = null;
 
         public static ContestService ContestService
         {
             get
             {
-                if (_photoService == null)
-                    _photoService = new ContestService();
+                if (_contestService == null)
+                    _contestService = new ContestService();
 
-                return _photoService;
+                return _contestService;
+            }
+        }
+
+        public static SettingsService SettingsService
+        {
+            get
+            {
+                if (_settingsService == null)
+                    _settingsService = new SettingsService();
+
+                return _settingsService;
             }
         }
 
         #endregion
+
+        public const string PHOTO_DIRECTORY = "/photos";
 
         // Constructor
         public App()
@@ -66,24 +92,28 @@ namespace Photohunt
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
+            ContestService.Load();
         }
 
         // Code to execute when the application is activated (brought to foreground)
         // This code will not execute when the application is first launched
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
+            ContestService.Load();
         }
 
         // Code to execute when the application is deactivated (sent to background)
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
+            ContestService.Save();
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            ContestService.Save();
         }
 
         // Code to execute if a navigation fails

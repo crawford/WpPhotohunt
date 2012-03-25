@@ -2,6 +2,7 @@
 using Photohunt.Models;
 using System.ComponentModel;
 using System;
+using System.IO.IsolatedStorage;
 
 namespace Photohunt.Data
 {
@@ -9,7 +10,6 @@ namespace Photohunt.Data
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private ObservableCollection<Photo> _photos;
-        private Photo _currentPhoto;
         private int _maxPhotoCount;
         private int _judgeCount;
         private int _maxJudgeCount;
@@ -21,7 +21,7 @@ namespace Photohunt.Data
             {
                 NotifyPropertyChanged("PhotoCount");
             };
-            _currentPhoto = null;
+
             _maxPhotoCount = 0;
             _judgeCount = 0;
             _maxJudgeCount = 0;
@@ -35,15 +35,38 @@ namespace Photohunt.Data
             return photo;
         }
 
-        void Photo_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        public void Photo_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Photo photo = (Photo)sender;
-            if (photo.Judge)
-                _judgeCount++;
-            else
-                _judgeCount--;
+            if (e.PropertyName == "Judge")
+            {
+                Photo photo = (Photo)sender;
+                if (photo.Judge)
+                    _judgeCount++;
+                else
+                    _judgeCount--;
 
-            NotifyPropertyChanged("JudgedPhotoCount");
+                NotifyPropertyChanged("JudgedPhotoCount");
+            }
+        }
+
+        public void Save() {
+            IsolatedStorageSettings.ApplicationSettings["o"] = _photos;
+            IsolatedStorageSettings.ApplicationSettings.Save();
+        }
+
+        public void Load()
+        {
+            if (IsolatedStorageSettings.ApplicationSettings.Contains("o"))
+                _photos = (ObservableCollection<Photo>)IsolatedStorageSettings.ApplicationSettings["o"];
+
+            _photos.CollectionChanged += (o, r) =>
+            {
+                NotifyPropertyChanged("PhotoCount");
+            };
+
+            foreach (Photo p in _photos)
+                if (p.Judge)
+                    _judgeCount++;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -55,21 +78,6 @@ namespace Photohunt.Data
         }
 
         #region Getters and Setters
-
-        public Photo CurrentPhoto
-        {
-            get
-            {
-                return _currentPhoto;
-            }
-            set
-            {
-                if (_currentPhoto != value)
-                {
-                    _currentPhoto = value;
-                }
-            }
-        }
 
         public int PhotoCount
         {
@@ -100,6 +108,14 @@ namespace Photohunt.Data
             get
             {
                 return _maxJudgeCount;
+            }
+        }
+
+        public ObservableCollection<Photo> Photos
+        {
+            get
+            {
+                return _photos;
             }
         }
 

@@ -8,7 +8,7 @@
 
     <!--Application Resources-->
     <Application.Resources>
-        <cvt:PhoneNumberConverter x:Key="PhoneNumberConvertor" />
+        <cvt:ImageConverter x:Key="ImageConverter" />
     </Application.Resources>
 
     <Application.ApplicationLifetimeObjects>

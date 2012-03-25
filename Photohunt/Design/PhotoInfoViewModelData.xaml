@@ -1,0 +1,10 @@
+﻿<vms:PhotoInfoViewModel
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vms="clr-namespace:Photohunt.ViewModels"
+    xmlns:mod="clr-namespace:Photohunt.Models">
+
+    <vms:PhotoInfoViewModel.CurrentPhoto>
+        <mod:Photo Notes="Test 1" Judge="True" />
+    </vms:PhotoInfoViewModel.CurrentPhoto>
+</vms:PhotoInfoViewModel>

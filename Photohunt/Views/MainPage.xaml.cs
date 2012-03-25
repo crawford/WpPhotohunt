@@ -4,33 +4,20 @@ using Microsoft.Phone.Tasks;
 using System.Windows;
 using System;
 using Photohunt.Models;
+using System.Windows.Media.Imaging;
+using System.Windows.Controls;
 
 namespace Photohunt.Views
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        CameraCaptureTask cameraCaptureTask;
-        bool imageCaptured;
-
-
         public MainPage()
         {
             InitializeComponent();
-            imageCaptured = false;
-            cameraCaptureTask = new CameraCaptureTask();
-            cameraCaptureTask.Completed += new System.EventHandler<PhotoResult>(cameraCaptureTask_Completed);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (imageCaptured)
-            {
-                NavigationService.StopLoading();
-                NavigationService.Navigate(new Uri("/Views/PhotoInfoPage.xaml", UriKind.Relative));
-                imageCaptured = false;
-                return;
-            }
-
             base.OnNavigatedTo(e);
 
             if (DataContext == null)
@@ -39,23 +26,20 @@ namespace Photohunt.Views
 
         private void AbbPhoto_Click(object sender, System.EventArgs e)
         {
-            try
-            {
-                cameraCaptureTask.Show();
-            }
-            catch (System.InvalidOperationException)
-            {
-                MessageBox.Show("An error occurred.");
-            }
+            App.PhotoInfoViewModel.CurrentPhoto = null;
+            NavigationService.Navigate(new Uri("/Views/PhotoInfoPage.xaml", UriKind.Relative));
         }
 
-        void cameraCaptureTask_Completed(object sender, PhotoResult e)
+        private void Image_Click(object sender, System.EventArgs e)
         {
-            if (e.TaskResult == TaskResult.OK)
-            {
-                App.ContestService.CurrentPhoto = App.ContestService.CreatePhoto(new Uri(e.OriginalFileName));
-                imageCaptured = true;
-            }
+            Image image = sender as Image;
+            if (image == null)
+                return;
+
+            Photo photo = (Photo)image.DataContext;
+
+            App.PhotoInfoViewModel.CurrentPhoto = photo;
+            NavigationService.Navigate(new Uri("/Views/PhotoInfoPage.xaml", UriKind.Relative));
         }
     }
 }

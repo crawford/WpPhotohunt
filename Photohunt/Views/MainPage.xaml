@@ -1,67 +1,71 @@
 ﻿<phone:PhoneApplicationPage
-    x:Class="Photohunt.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    x:Class="Photohunt.Views.MainPage"
     SupportedOrientations="Portrait"  Orientation="Portrait" 
     d:DataContext="{d:DesignData ../Design/MainViewModelData.xaml}"
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696" 
     shell:SystemTray.IsVisible="True">
-
-    <phone:PhoneApplicationPage.Resources>
-        <Style x:Key="ContactHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="40" />
-        </Style>
-        <Style x:Key="ContactNumberStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="Gray" />
-        </Style>
-        <DataTemplate x:Key="ContactsTemplate">
-            <StackPanel Margin="0, 10">
-                <TextBlock Text="{Binding Name}" Style="{StaticResource ContactHeaderStyle}" />
-                <TextBlock Text="{Binding PhoneNumber, Converter={StaticResource PhoneNumberConvertor}}" Style="{StaticResource ContactNumberStyle}" />
-            </StackPanel>
-        </DataTemplate>
-    </phone:PhoneApplicationPage.Resources>
+    
+	<phone:PhoneApplicationPage.FontFamily>
+		<StaticResource ResourceKey="PhoneFontFamilyNormal"/>
+	</phone:PhoneApplicationPage.FontFamily>
+	<phone:PhoneApplicationPage.FontSize>
+		<StaticResource ResourceKey="PhoneFontSizeNormal"/>
+	</phone:PhoneApplicationPage.FontSize>
+	<phone:PhoneApplicationPage.Foreground>
+		<StaticResource ResourceKey="PhoneForegroundBrush"/>
+	</phone:PhoneApplicationPage.Foreground>
     
     <!-- Sample code showing usage of ApplicationBar -->
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton x:Name="AbbSettings" Text="settings" IconUri="/Images/appbar.feature.settings.rest.png" />
-            <shell:ApplicationBarIconButton x:Name="AbbGallery" IconUri="/Images/appbar.folder.rest.png" IsEnabled="True" Text="gallery"/>
             <shell:ApplicationBarIconButton x:Name="AbbPhoto" IconUri="/Images/appbar.feature.camera.rest.png" IsEnabled="True" Text="take photo" Click="AbbPhoto_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
     
     <!--LayoutRoot contains the root grid where all other page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="24,24,0,12">
-            <TextBlock x:Name="ApplicationTitle" Text="PHOTOHUNT" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock x:Name="PageTitle" Text="team faggot" Margin="-3,-8,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
-        </StackPanel>
-
-        <!--ContentPanel - place additional content here-->
-        <Grid x:Name="ContentGrid" Grid.Row="1">
-        	<TextBlock Margin="8,8,8,0" TextWrapping="Wrap" Text="Photos Taken" VerticalAlignment="Top"/>
-        	<TextBlock x:Name="LblPhotosTaken" Margin="8,39,8,0" TextWrapping="Wrap" Text="{Binding PhotosTakenString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
-        	<TextBlock Margin="8,214,8,0" TextWrapping="Wrap" Text="Potential Points Submitted" VerticalAlignment="Top"/>
-        	<TextBlock x:Name="LblPoints" Margin="8,245,8,261" TextWrapping="Wrap" Text="56" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" d:LayoutOverrides="Height"/>
-        	<TextBlock Margin="8,0,8,200" TextWrapping="Wrap" Text="Time Remaining" VerticalAlignment="Bottom"/>
-        	<TextBlock x:Name="LblTime" Margin="8,0,8,157" TextWrapping="Wrap" Text="4:12" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" VerticalAlignment="Bottom"/>
-        	<TextBlock Margin="8,111,8,0" TextWrapping="Wrap" Text="Photos Submitted for Judging" VerticalAlignment="Top"/>
-        	<TextBlock x:Name="LblPhotosJudged" Margin="8,142,8,0" TextWrapping="Wrap" Text="{Binding PhotosJudgedString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
-        </Grid>
-    </Grid>
+    <controls:Pivot Title="PHOTOHUNT">
+		<controls:PivotItem x:Name="PviTeam" Header="team faggot">
+			<Grid>
+				<TextBlock Margin="8,8,8,0" TextWrapping="Wrap" Text="Photos Taken" VerticalAlignment="Top"/>
+				<TextBlock x:Name="LblPhotosTaken" Margin="8,39,8,0" TextWrapping="Wrap" Text="{Binding PhotosTakenString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
+				<TextBlock Margin="8,214,8,0" TextWrapping="Wrap" Text="Potential Points Submitted" VerticalAlignment="Top"/>
+				<TextBlock x:Name="LblPoints" Margin="8,245,8,251" TextWrapping="Wrap" Text="56" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" d:LayoutOverrides="Height"/>
+				<TextBlock Margin="8,0,8,190" TextWrapping="Wrap" Text="Time Remaining" VerticalAlignment="Bottom"/>
+				<TextBlock x:Name="LblTime" Margin="8,0,8,147" TextWrapping="Wrap" Text="4:12" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" VerticalAlignment="Bottom"/>
+				<TextBlock Margin="8,111,-267,0" TextWrapping="Wrap" Text="Photos Submitted for Judging" VerticalAlignment="Top"/>
+				<TextBlock x:Name="LblPhotosJudged" Margin="8,142,8,0" TextWrapping="Wrap" Text="{Binding PhotosJudgedString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
+			</Grid>
+		</controls:PivotItem>
+		<controls:PivotItem x:Name="PviClues" Header="clues">
+			<Grid/>
+		</controls:PivotItem>
+		<controls:PivotItem x:Name="PviGallery" Header="gallery">
+			<ListBox ItemsSource="{Binding Photos}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Image Source="{Binding Path, Converter={StaticResource ImageConverter}}" Width="100" Height="75">
+							<toolkit:GestureService.GestureListener>
+								<toolkit:GestureListener Tap="Image_Click"/>
+							</toolkit:GestureService.GestureListener>	
+						</Image>		
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				<ListBox.ItemsPanel>
+					<ItemsPanelTemplate>
+						<toolkit:WrapPanel ItemHeight="89" ItemWidth="114" Orientation="Horizontal" />
+					</ItemsPanelTemplate>
+				</ListBox.ItemsPanel>
+			</ListBox>			
+		</controls:PivotItem>
+	</controls:Pivot>
 
 </phone:PhoneApplicationPage>

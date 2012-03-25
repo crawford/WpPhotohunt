@@ -2,5 +2,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vms="clr-namespace:Photohunt.ViewModels"
-    xmlns:dat="clr-namespace:Photohunt.Data"
-    PhotosTakenString="5 / 20"/>
+	xmlns:mod="clr-namespace:Photohunt.Models"
+    xmlns:dat="clr-namespace:Photohunt.Data">
+	
+	<vms:MainViewModel.Photos>
+		<mod:Photo Judge="False" Path="/Images/appbar.delete.png" />
+		<mod:Photo Judge="False" Path="/Images/appbar.cancel.rest.png" />
+		<mod:Photo Judge="False" Path="/Images/appbar.feature.camera.rest.png" />
+		<mod:Photo Judge="False" Path="/Images/appbar.feature.settings.rest.png" />
+		<mod:Photo Judge="False" Path="/Images/appbar.save.rest.png" />
+	</vms:MainViewModel.Photos>
+</vms:MainViewModel>

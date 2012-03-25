@@ -56,6 +56,14 @@ namespace Photohunt.ViewModels
             }
         }
 
+        public ObservableCollection<Photo> Photos
+        {
+            get
+            {
+                return App.ContestService.Photos;
+            }
+        }
+
         #endregion
     }
 }
