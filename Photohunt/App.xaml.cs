@@ -47,6 +47,7 @@ namespace Photohunt
 
         private static ContestService _contestService = null;
         private static SettingsService _settingsService = null;
+        private static ApiService _apiService = null;
 
         public static ContestService ContestService
         {
@@ -67,6 +68,17 @@ namespace Photohunt
                     _settingsService = new SettingsService();
 
                 return _settingsService;
+            }
+        }
+
+        public static ApiService ApiService
+        {
+            get
+            {
+                if (_apiService == null)
+                    _apiService = new ApiService();
+
+                return _apiService;
             }
         }
 
@@ -106,14 +118,12 @@ namespace Photohunt
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            ContestService.Save();
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
-            ContestService.Save();
         }
 
         // Code to execute if a navigation fails

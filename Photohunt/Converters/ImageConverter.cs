@@ -21,7 +21,7 @@ namespace Photohunt.Converters
                 IsolatedStorageFileStream stream = store.OpenFile(uri.AbsolutePath, FileMode.Open);
                 image.SetSource(stream);
                 stream.Close();
-            } catch (IsolatedStorageException) {
+            } catch (Exception) {
                 MessageBox.Show("Error loading image from storage");
             }
             

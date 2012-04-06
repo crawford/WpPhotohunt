@@ -3,7 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vms="clr-namespace:Photohunt.ViewModels"
 	xmlns:mod="clr-namespace:Photohunt.Models"
-    xmlns:dat="clr-namespace:Photohunt.Data">
+    xmlns:dat="clr-namespace:Photohunt.Data"
+	TeamName="Test">
 	
 	<vms:MainViewModel.Photos>
 		<mod:Photo Judge="False" Path="/Images/appbar.delete.png" />

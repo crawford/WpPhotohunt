@@ -11,6 +11,8 @@ namespace Photohunt.Views
 {
     public partial class MainPage : PhoneApplicationPage
     {
+        private bool _firstLaunch = true;
+
         public MainPage()
         {
             InitializeComponent();
@@ -22,6 +24,15 @@ namespace Photohunt.Views
 
             if (DataContext == null)
                 DataContext = App.MainViewModel;
+
+            if (_firstLaunch)
+            {
+                _firstLaunch = false;
+                if (App.SettingsService.AutostartCamera)
+                {
+                    AbbPhoto_Click(null, null);
+                }
+            }
         }
 
         private void AbbPhoto_Click(object sender, System.EventArgs e)
@@ -40,6 +51,16 @@ namespace Photohunt.Views
 
             App.PhotoInfoViewModel.CurrentPhoto = photo;
             NavigationService.Navigate(new Uri("/Views/PhotoInfoPage.xaml", UriKind.Relative));
+        }
+
+        private void MbbSettings_Click(object sender, System.EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/SettingsPage.xaml", UriKind.Relative));
+        }
+
+        private void MbbAbout_Click(object sender, System.EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/AboutPage.xaml", UriKind.Relative));
         }
     }
 }

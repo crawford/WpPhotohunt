@@ -13,18 +13,22 @@ namespace Photohunt.Data
         private int _maxPhotoCount;
         private int _judgeCount;
         private int _maxJudgeCount;
+        private string _teamName;
+        private DateTime _startTime;
+        private DateTime _endTime;
+        private IsolatedStorageSettings _settings;
+
+        private const string KEY_PHOTOS               = "photos";
+        private const string KEY_MAX_PHOTOS           = "MaxPhotos";
+        private const string KEY_MAX_JUDGEABLE_PHOTOS = "MaxJudgeablePhotos";
+        private const string KEY_TEAM_NAME            = "TeamName";
+        private const string KEY_START_TIME           = "StartTime";
+        private const string KEY_END_TIME             = "EndTime";
 
         public ContestService()
         {
-            _photos = new ObservableCollection<Photo>();
-            _photos.CollectionChanged += (o, r) =>
-            {
-                NotifyPropertyChanged("PhotoCount");
-            };
-
-            _maxPhotoCount = 0;
-            _judgeCount = 0;
-            _maxJudgeCount = 0;
+            _settings = IsolatedStorageSettings.ApplicationSettings;
+            Load();
         }
 
         public Photo CreatePhoto(Uri path)
@@ -41,32 +45,54 @@ namespace Photohunt.Data
             {
                 Photo photo = (Photo)sender;
                 if (photo.Judge)
-                    _judgeCount++;
+                    JudgedPhotoCount++;
                 else
-                    _judgeCount--;
-
-                NotifyPropertyChanged("JudgedPhotoCount");
+                    JudgedPhotoCount--;
             }
-        }
-
-        public void Save() {
-            IsolatedStorageSettings.ApplicationSettings["o"] = _photos;
-            IsolatedStorageSettings.ApplicationSettings.Save();
         }
 
         public void Load()
         {
-            if (IsolatedStorageSettings.ApplicationSettings.Contains("o"))
-                _photos = (ObservableCollection<Photo>)IsolatedStorageSettings.ApplicationSettings["o"];
+            if (!_settings.Contains(KEY_MAX_PHOTOS))           _settings[KEY_MAX_PHOTOS]           = 0;
+            if (!_settings.Contains(KEY_MAX_JUDGEABLE_PHOTOS)) _settings[KEY_MAX_JUDGEABLE_PHOTOS] = 0;
+            if (!_settings.Contains(KEY_TEAM_NAME))            _settings[KEY_TEAM_NAME]            = "team";
+            if (!_settings.Contains(KEY_START_TIME))           _settings[KEY_START_TIME]           = DateTime.Now;
+            if (!_settings.Contains(KEY_END_TIME))             _settings[KEY_END_TIME]             = DateTime.Now;
+            if (!_settings.Contains(KEY_PHOTOS))               _settings[KEY_PHOTOS]               = new ObservableCollection<Photo>();
+
+            MaxPhotoCount       = (int)                        _settings[KEY_MAX_PHOTOS];
+            MaxJudgedPhotoCount = (int)                        _settings[KEY_MAX_JUDGEABLE_PHOTOS];
+            TeamName            = (string)                     _settings[KEY_TEAM_NAME];
+            StartTime           = (DateTime)                   _settings[KEY_START_TIME];
+            EndTime             = (DateTime)                   _settings[KEY_END_TIME];
+            _photos             = (ObservableCollection<Photo>)_settings[KEY_PHOTOS];
+
+            NotifyPropertyChanged("Photos");
 
             _photos.CollectionChanged += (o, r) =>
             {
+                _settings[KEY_PHOTOS] = _photos;
+                _settings.Save();
                 NotifyPropertyChanged("PhotoCount");
             };
 
             foreach (Photo p in _photos)
                 if (p.Judge)
-                    _judgeCount++;
+                    JudgedPhotoCount++;
+        }
+
+        public void NewGame()
+        {
+            _photos.Clear();
+            JudgedPhotoCount = 0;
+            MaxJudgedPhotoCount = 0;
+            MaxPhotoCount = 0;
+            App.SettingsService.ActiveGame = true;
+        }
+
+        public void EndGame()
+        {
+            App.SettingsService.ActiveGame = false;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -93,6 +119,16 @@ namespace Photohunt.Data
             {
                 return _maxPhotoCount;
             }
+            set
+            {
+                if (_maxPhotoCount != value)
+                {
+                    _maxPhotoCount = value;
+                    _settings[KEY_MAX_PHOTOS] = value;
+                    _settings.Save();
+                    NotifyPropertyChanged("MaxPhotoCount");
+                }
+            }
         }
 
         public int JudgedPhotoCount
@@ -100,6 +136,14 @@ namespace Photohunt.Data
             get
             {
                 return _judgeCount;
+            }
+            private set
+            {
+                if (_judgeCount != value)
+                {
+                    _judgeCount = value;
+                    NotifyPropertyChanged("JudgedPhotoCount");
+                }
             }
         }
 
@@ -109,6 +153,16 @@ namespace Photohunt.Data
             {
                 return _maxJudgeCount;
             }
+            set
+            {
+                if (_maxJudgeCount != value)
+                {
+                    _maxJudgeCount = value;
+                    _settings[KEY_MAX_JUDGEABLE_PHOTOS] = value;
+                    _settings.Save();
+                    NotifyPropertyChanged("MaxJudgedPhotoCount");
+                }
+            }
         }
 
         public ObservableCollection<Photo> Photos
@@ -116,6 +170,60 @@ namespace Photohunt.Data
             get
             {
                 return _photos;
+            }
+        }
+
+        public string TeamName
+        {
+            get
+            {
+                return _teamName;
+            }
+            set
+            {
+                if (_teamName != value)
+                {
+                    _teamName = value;
+                    _settings[KEY_TEAM_NAME] = value;
+                    _settings.Save();
+                    NotifyPropertyChanged("TeamName");
+                }
+            }
+        }
+
+        public DateTime StartTime
+        {
+            get
+            {
+                return _startTime;
+            }
+            set
+            {
+                if (_startTime != value)
+                {
+                    _startTime = value;
+                    _settings[KEY_START_TIME] = value;
+                    _settings.Save();
+                    NotifyPropertyChanged("StartTime");
+                }
+            }
+        }
+
+        public DateTime EndTime
+        {
+            get
+            {
+                return _endTime;
+            }
+            set
+            {
+                if (_endTime != value)
+                {
+                    _endTime = value;
+                    _settings[KEY_END_TIME] = value;
+                    _settings.Save();
+                    NotifyPropertyChanged("EndTime");
+                }
             }
         }
 
