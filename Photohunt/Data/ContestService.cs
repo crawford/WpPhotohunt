@@ -91,8 +91,6 @@ namespace Photohunt.Data
         {
             _photos.Clear();
             JudgedPhotoCount = 0;
-            MaxJudgedPhotoCount = 0;
-            MaxPhotoCount = 0;
             App.SettingsService.ActiveGame = true;
         }
 

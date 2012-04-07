@@ -54,10 +54,21 @@ namespace Photohunt.Data
                         //Get the response from the request
                         using (Stream responseStream = request.EndGetResponse(asynchronousResult).GetResponseStream())
                         {
-                            //Read the content into result (should contain the CBUserId)
                             DataContractJsonSerializer serializer = new DataContractJsonSerializer(type);
                             Response temp = serializer.ReadObject(responseStream) as Response;
                             callback(temp);
+                        }
+                    }
+                    catch (WebException e)
+                    {
+                        using (Stream responseStream = e.Response.GetResponseStream())
+                        {
+                            DataContractJsonSerializer serializer = new DataContractJsonSerializer(type);
+                            Response temp = serializer.ReadObject(responseStream) as Response;
+                            if (temp != null)
+                                callback(temp);
+                            else
+                                callback(new Response(Response.STATUS.ERR_INTERNAL, e.Message));
                         }
                     }
                     catch (Exception e)

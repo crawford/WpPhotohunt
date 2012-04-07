@@ -16,9 +16,9 @@
 	
 	<phone:PhoneApplicationPage.Resources>
 		<DataTemplate x:Key="ClueListTemplate">
-        	<Grid d:DesignWidth="456" Height="80">
-				<TextBlock Text="{Binding Description}" Margin="0,0,79,0" />
-				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="75" TextAlignment="Center" VerticalAlignment="Center"/> 
+        	<Grid d:DesignWidth="456" MinHeight="70">
+				<TextBlock Text="{Binding Description}" Margin="0,0,100,0" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeMedium}" />
+				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
 			</Grid> 
         </DataTemplate>
 		<DataTemplate x:Key="PivotHeaderTemplate">

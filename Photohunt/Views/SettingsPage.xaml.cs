@@ -31,13 +31,8 @@ namespace Photohunt
             if (MessageBox.Show("Are you sure you want to start a new game? All local photos will be erased.", "New Game", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 App.SettingsService.GameKey = TxtPassword.Password;
-                App.ContestService.NewGame();
                 App.ApiService.FetchTeamInfo(ApiService_FetchTeamInfoCompleted);
                 App.ApiService.FetchClues(ApiService_FetchCluesCompleted);
-
-                BtnEndGame.IsEnabled = true;
-                BtnNewGame.IsEnabled = false;
-                TxtPassword.IsEnabled = false;
             }
         }
 
@@ -52,6 +47,11 @@ namespace Photohunt
                     App.ContestService.TeamName = info.Name.ToLower();
                     App.ContestService.StartTime = info.StartTime;
                     App.ContestService.EndTime = info.EndTime;
+
+                    BtnEndGame.IsEnabled = true;
+                    BtnNewGame.IsEnabled = false;
+                    TxtPassword.IsEnabled = false;
+                    App.ContestService.NewGame();
                 }
                 else
                 {
