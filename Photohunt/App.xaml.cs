@@ -17,6 +17,7 @@ namespace Photohunt
 
         private static MainViewModel _mainViewModel = null;
         private static PhotoInfoViewModel _photoInfoViewModel = null;
+        private static CluesViewModel _cluesViewModel = null;
 
         // Easy access to the viewmodels
         public static MainViewModel MainViewModel
@@ -38,6 +39,17 @@ namespace Photohunt
                     _photoInfoViewModel = new PhotoInfoViewModel();
 
                 return _photoInfoViewModel;
+            }
+        }
+
+        public static CluesViewModel CluesViewModel
+        {
+            get
+            {
+                if (_cluesViewModel == null)
+                    _cluesViewModel = new CluesViewModel();
+
+                return _cluesViewModel;
             }
         }
 

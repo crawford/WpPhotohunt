@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using Photohunt.Models;
 using System.Net;
 using Microsoft.Phone.Net.NetworkInformation;
+using System.Collections.Generic;
 
 namespace Photohunt
 {
@@ -65,7 +66,26 @@ namespace Photohunt
             {
                 if (success)
                 {
-                    
+                    Dictionary<string, List<Clue>> categories = new Dictionary<string, List<Clue>>();
+                    foreach (Clue clue in clues)
+                    {
+                        foreach (string tag in clue.Tags)
+                        {
+                            if (!categories.ContainsKey(tag))
+                                categories[tag] = new List<Clue>();
+
+                            categories[tag].Add(clue);
+                        }
+                    }
+
+                    ClueCategory[] cats = new ClueCategory[categories.Keys.Count];
+                    int i = 0;
+                    foreach (string cat in categories.Keys)
+                    {
+                        cats[i] = new ClueCategory(cat, categories[cat].ToArray());
+                        i++;
+                    }
+                    App.ContestService.Categories = cats;
                 }
                 else
                 {

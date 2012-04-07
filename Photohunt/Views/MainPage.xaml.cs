@@ -62,5 +62,10 @@ namespace Photohunt.Views
         {
             NavigationService.Navigate(new Uri("/Views/AboutPage.xaml", UriKind.Relative));
         }
+
+        private void AbbClues_Click(object sender, System.EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/Clues.xaml", UriKind.Relative));
+        }
     }
 }

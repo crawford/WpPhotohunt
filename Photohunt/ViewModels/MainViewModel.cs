@@ -23,7 +23,7 @@ namespace Photohunt.ViewModels
             }, null, 0, 15 * 1000);
         }
 
-        void ContestService_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ContestService_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {

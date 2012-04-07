@@ -30,6 +30,7 @@
         		<shell:ApplicationBarMenuItem x:Name="MbbSettings" Text="settings" Click="MbbSettings_Click"/>
         		<shell:ApplicationBarMenuItem x:Name="MbbAbout" Text="about" Click="MbbAbout_Click"/>
         	</shell:ApplicationBar.MenuItems>
+            <shell:ApplicationBarIconButton x:Name="AbbClues" IconUri="/Images/appbar.questionmark.rest.png" Text="views clues" Click="AbbClues_Click"/>
             <shell:ApplicationBarIconButton x:Name="AbbPhoto" IconUri="/Images/appbar.feature.camera.rest.png" IsEnabled="True" Text="take photo" Click="AbbPhoto_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
@@ -47,9 +48,6 @@
 				<TextBlock Margin="8,111,-267,0" TextWrapping="Wrap" Text="Photos Submitted for Judging" VerticalAlignment="Top"/>
 				<TextBlock x:Name="LblPhotosJudged" Margin="8,142,8,0" TextWrapping="Wrap" Text="{Binding PhotosJudgedString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
 			</Grid>
-		</controls:PivotItem>
-		<controls:PivotItem x:Name="PviClues" Header="clues">
-			<Grid/>
 		</controls:PivotItem>
 		<controls:PivotItem x:Name="PviGallery" Header="gallery">
 			<ListBox ItemsSource="{Binding Photos}">
