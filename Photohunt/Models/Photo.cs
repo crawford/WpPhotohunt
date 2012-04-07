@@ -11,20 +11,20 @@ namespace Photohunt.Models
         private bool _judge;
         private List<Clue> _clues;
         private Uri _path;
-        private bool dirty;
+        private bool _dirty;
 
         public Photo()
         {
             _notes = "";
             _judge = false;
             _clues = new List<Clue>();
-            dirty = false;
+            _dirty = false;
         }
 
         public Photo(Uri path) : this()
         {
             _path = path;
-            dirty = true;
+            _dirty = true;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -49,7 +49,7 @@ namespace Photohunt.Models
                 if (_notes != value)
                 {
                     _notes = value;
-                    dirty = true;
+                    _dirty = true;
                     NotifyPropertyChanged("Notes");
                 }
             }
@@ -67,7 +67,7 @@ namespace Photohunt.Models
                 if (_judge != value)
                 {
                     _judge = value;
-                    dirty = true;
+                    _dirty = true;
                     NotifyPropertyChanged("Judge");
                 }
             }
@@ -85,7 +85,7 @@ namespace Photohunt.Models
                 if (_clues != value)
                 {
                     _clues = value;
-                    dirty = true;
+                    _dirty = true;
                     NotifyPropertyChanged("Clues");
                 }
             }
@@ -96,6 +96,23 @@ namespace Photohunt.Models
             get
             {
                 return _path;
+            }
+
+            set
+            {
+                _path = value;
+            }
+        }
+
+        public bool Dirty
+        {
+            get
+            {
+                return _dirty;
+            }
+            set
+            {
+                _dirty = value;
             }
         }
 

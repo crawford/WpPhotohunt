@@ -30,7 +30,6 @@ namespace Photohunt.Data
         public ContestService()
         {
             _settings = IsolatedStorageSettings.ApplicationSettings;
-            Load();
         }
 
         public Photo CreatePhoto(Uri path)
@@ -57,13 +56,11 @@ namespace Photohunt.Data
         {
             if (!_settings.Contains(KEY_MAX_PHOTOS))           _settings[KEY_MAX_PHOTOS]           = 0;
             if (!_settings.Contains(KEY_MAX_JUDGEABLE_PHOTOS)) _settings[KEY_MAX_JUDGEABLE_PHOTOS] = 0;
-            if (!_settings.Contains(KEY_TEAM_NAME))
-                _settings[KEY_TEAM_NAME]            = "team";
+            if (!_settings.Contains(KEY_TEAM_NAME))            _settings[KEY_TEAM_NAME]            = "team";
             if (!_settings.Contains(KEY_START_TIME))           _settings[KEY_START_TIME]           = DateTime.Now;
             if (!_settings.Contains(KEY_END_TIME))             _settings[KEY_END_TIME]             = DateTime.Now;
             if (!_settings.Contains(KEY_PHOTOS))               _settings[KEY_PHOTOS]               = new ObservableCollection<Photo>();
-            if (!_settings.Contains(KEY_CLUES))               
-                _settings[KEY_CLUES]                = new ClueCategory[0];
+            if (!_settings.Contains(KEY_CLUES))                _settings[KEY_CLUES]                = new ClueCategory[0];
 
             MaxPhotoCount       = (int)                        _settings[KEY_MAX_PHOTOS];
             MaxJudgedPhotoCount = (int)                        _settings[KEY_MAX_JUDGEABLE_PHOTOS];
@@ -82,9 +79,13 @@ namespace Photohunt.Data
                 NotifyPropertyChanged("PhotoCount");
             };
 
+            _judgeCount = 0;
             foreach (Photo p in _photos)
+            {
+                p.PropertyChanged += new PropertyChangedEventHandler(Photo_PropertyChanged);
                 if (p.Judge)
                     JudgedPhotoCount++;
+            }
         }
 
         public void NewGame()

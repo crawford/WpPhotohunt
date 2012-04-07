@@ -9,7 +9,7 @@ namespace Photohunt.Data
 {
     public class ApiService
     {
-        private const string BASE_URL = @"http://test.acrawford.com/api";
+        private const string BASE_URL = @"https://photohunt.csh.rit.edu/api";
 
         public void FetchTeamInfo(Action<bool, string, TeamInfo> callback)
         {
@@ -61,14 +61,21 @@ namespace Photohunt.Data
                     }
                     catch (WebException e)
                     {
-                        using (Stream responseStream = e.Response.GetResponseStream())
+                        try
                         {
-                            DataContractJsonSerializer serializer = new DataContractJsonSerializer(type);
-                            Response temp = serializer.ReadObject(responseStream) as Response;
-                            if (temp != null)
-                                callback(temp);
-                            else
-                                callback(new Response(Response.STATUS.ERR_INTERNAL, e.Message));
+                            using (Stream responseStream = e.Response.GetResponseStream())
+                            {
+                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(type);
+                                Response temp = serializer.ReadObject(responseStream) as Response;
+                                if (temp != null)
+                                    callback(temp);
+                                else
+                                    callback(new Response(Response.STATUS.ERR_INTERNAL, e.Message));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            callback(new Response(Response.STATUS.ERR_INTERNAL, ex.Message));
                         }
                     }
                     catch (Exception e)

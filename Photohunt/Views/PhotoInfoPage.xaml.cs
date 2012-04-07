@@ -88,17 +88,20 @@ namespace Photohunt.Views
                 photo.SetSource(e.ChosenPhoto);
                 ImgPhoto.Source = photo;
 
-                IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication();
-                if (!store.DirectoryExists(App.PHOTO_DIRECTORY))
-                    store.CreateDirectory(App.PHOTO_DIRECTORY);
+                using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    if (!store.DirectoryExists(App.PHOTO_DIRECTORY))
+                        store.CreateDirectory(App.PHOTO_DIRECTORY);
 
-                string fileName = string.Format("{0}/{1}.jpg", App.PHOTO_DIRECTORY, Guid.NewGuid().ToString());
-                IsolatedStorageFileStream stream = store.CreateFile(fileName);
-                WriteableBitmap wb = new WriteableBitmap(photo);
-                wb.SaveJpeg(stream, wb.PixelWidth, wb.PixelHeight, 0, 100);
-                stream.Close();
+                    string fileName = Path.Combine(App.PHOTO_DIRECTORY, Guid.NewGuid().ToString());
+                    using (IsolatedStorageFileStream stream = store.CreateFile(fileName))
+                    {
+                        WriteableBitmap wb = new WriteableBitmap(photo);
+                        wb.SaveJpeg(stream, wb.PixelWidth, wb.PixelHeight, 0, 100);
+                    }
 
-                App.PhotoInfoViewModel.CurrentPhoto = App.ContestService.CreatePhoto(new Uri(fileName, UriKind.Absolute));
+                    App.PhotoInfoViewModel.CurrentPhoto = App.ContestService.CreatePhoto(new Uri(fileName, UriKind.Absolute));
+                }
             }
             else
             {
