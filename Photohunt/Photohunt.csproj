@@ -67,6 +67,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\ClueStyleConverter.cs" />
     <Compile Include="Converters\ImageConverter.cs" />
     <Compile Include="Data\ApiService.cs" />
     <Compile Include="Data\ContestService.cs" />

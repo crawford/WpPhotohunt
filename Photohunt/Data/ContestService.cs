@@ -3,6 +3,7 @@ using Photohunt.Models;
 using System.ComponentModel;
 using System;
 using System.IO.IsolatedStorage;
+using System.Collections.Generic;
 
 namespace Photohunt.Data
 {
@@ -17,7 +18,7 @@ namespace Photohunt.Data
         private DateTime _startTime;
         private DateTime _endTime;
         private IsolatedStorageSettings _settings;
-        private ClueCategory[] _clues;
+        private Dictionary<string, List<Clue>> _clues;
 
         private const string KEY_PHOTOS               = "photos";
         private const string KEY_MAX_PHOTOS           = "MaxPhotos";
@@ -60,15 +61,15 @@ namespace Photohunt.Data
             if (!_settings.Contains(KEY_START_TIME))           _settings[KEY_START_TIME]           = DateTime.Now;
             if (!_settings.Contains(KEY_END_TIME))             _settings[KEY_END_TIME]             = DateTime.Now;
             if (!_settings.Contains(KEY_PHOTOS))               _settings[KEY_PHOTOS]               = new ObservableCollection<Photo>();
-            if (!_settings.Contains(KEY_CLUES))                _settings[KEY_CLUES]                = new ClueCategory[0];
+            if (!_settings.Contains(KEY_CLUES))                _settings[KEY_CLUES]                = new Dictionary<string, List<Clue>>();
 
-            MaxPhotoCount       = (int)                        _settings[KEY_MAX_PHOTOS];
-            MaxJudgedPhotoCount = (int)                        _settings[KEY_MAX_JUDGEABLE_PHOTOS];
-            TeamName            = (string)                     _settings[KEY_TEAM_NAME];
-            StartTime           = (DateTime)                   _settings[KEY_START_TIME];
-            EndTime             = (DateTime)                   _settings[KEY_END_TIME];
-            _photos             = (ObservableCollection<Photo>)_settings[KEY_PHOTOS];
-            _clues              = (ClueCategory[])             _settings[KEY_CLUES];
+            MaxPhotoCount       = (int)                           _settings[KEY_MAX_PHOTOS];
+            MaxJudgedPhotoCount = (int)                           _settings[KEY_MAX_JUDGEABLE_PHOTOS];
+            TeamName            = (string)                        _settings[KEY_TEAM_NAME];
+            StartTime           = (DateTime)                      _settings[KEY_START_TIME];
+            EndTime             = (DateTime)                      _settings[KEY_END_TIME];
+            _photos             = (ObservableCollection<Photo>)   _settings[KEY_PHOTOS];
+            _clues              = (Dictionary<string, List<Clue>>)_settings[KEY_CLUES];
 
             NotifyPropertyChanged("Photos");
 
@@ -232,7 +233,7 @@ namespace Photohunt.Data
             }
         }
 
-        public ClueCategory[] Categories
+        public Dictionary<string, List<Clue>> Categories
         {
             get
             {

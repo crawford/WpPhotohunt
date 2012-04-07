@@ -11,7 +11,7 @@ namespace Photohunt.ViewModels
 
         public CluesViewModel()
         {
-            _categories = new List<ClueCategory>(App.ContestService.Categories);
+            BuildCategories();
             App.ContestService.PropertyChanged += new PropertyChangedEventHandler(ContestService_PropertyChanged);
         }
 
@@ -20,9 +20,31 @@ namespace Photohunt.ViewModels
             switch (e.PropertyName)
             {
                 case "Categories":
-                    _categories = new List<ClueCategory>(App.ContestService.Categories);
+                    BuildCategories();
                     NotifyPropertyChanged("Categories");
                     break;
+            }
+        }
+
+        private void BuildCategories()
+        {
+            _categories = new List<ClueCategory>(App.ContestService.Categories.Keys.Count);
+            foreach (string tag in App.ContestService.Categories.Keys)
+            {
+                ClueCategory category = new ClueCategory(tag);
+                List<Clue> clues = App.ContestService.Categories[tag];
+
+                foreach (Clue clue in clues)
+                {
+                    category.Clues.Add(clue);
+                    foreach (Clue bonus in clue.Bonuses)
+                    {
+                        bonus.IsBonus = true;
+                        category.Clues.Add(bonus);
+                    }
+                }
+
+                _categories.Add(category);
             }
         }
 

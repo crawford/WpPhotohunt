@@ -19,5 +19,7 @@ namespace Photohunt.Models
 
         [DataMember(Name = "tags", IsRequired = false)]
         public string[] Tags { get; set; }
+
+        public bool IsBonus { get; set; }
     }
 }

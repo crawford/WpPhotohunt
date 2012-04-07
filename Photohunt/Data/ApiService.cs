@@ -4,6 +4,7 @@ using System;
 using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Photohunt.Data
 {
@@ -25,7 +26,7 @@ namespace Photohunt.Data
             });
         }
 
-        public void FetchClues(Action<bool, string, Clue[]> callback)
+        public void FetchClues(Action<bool, string, Dictionary<string, List<Clue>>> callback)
         {
             MakeRequest(string.Format("{0}/clues", BASE_URL), typeof(ClueResponse), (response) =>
             {
@@ -35,7 +36,33 @@ namespace Photohunt.Data
                     return;
                 }
 
-                callback(true, response.Message, ((ClueResponse)response).Clues);
+                //Put all the clues into their categories
+                Clue[] clues = ((ClueResponse)response).Clues;
+                Dictionary<string, List<Clue>> categories = new Dictionary<string, List<Clue>>();
+                categories["all"] = new List<Clue>();
+                foreach (Clue clue in clues)
+                {
+                    foreach (string tag in clue.Tags)
+                    {
+                        if (!categories.ContainsKey(tag))
+                            categories[tag] = new List<Clue>();
+
+                        categories[tag].Add(clue);
+                    }
+
+                    categories["all"].Add(clue);
+                }
+
+                /*ClueCategory[] cats = new ClueCategory[categories.Keys.Count];
+                int i = 0;
+                foreach (string cat in categories.Keys)
+                {
+                    cats[i] = new ClueCategory(cat.ToLower(), categories[cat].ToArray());
+                    i++;
+                }*/
+
+
+                callback(true, response.Message, categories);
             });
         }
 

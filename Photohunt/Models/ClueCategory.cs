@@ -7,16 +7,16 @@ namespace Photohunt.Models
     public class ClueCategory
     {
         private string _name;
-        private Clue[] _clues;
+        private List<Clue> _clues;
 
-        public ClueCategory(string name, Clue[] clues)
+        public ClueCategory(string name)
         {
             _name = name;
-            _clues = clues;
+            _clues = new List<Clue>();
         }
 
         [DataMember]
-        public Clue[] Clues
+        public List<Clue> Clues
         {
             get
             {

@@ -12,12 +12,31 @@
 	FontSize="{StaticResource PhoneFontSizeNormal}"
 	Foreground="{StaticResource PhoneForegroundBrush}"
 	SupportedOrientations="Portrait" Orientation="Portrait"
-	shell:SystemTray.IsVisible="True">
+	shell:SystemTray.IsVisible="True"
+	xmlns:cvt="clr-namespace:Photohunt.Converters">
 	
 	<phone:PhoneApplicationPage.Resources>
-		<DataTemplate x:Key="ClueListTemplate">
-        	<Grid d:DesignWidth="456" MinHeight="70">
-				<TextBlock Text="{Binding Description}" Margin="0,0,100,0" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeMedium}" />
+		<Style x:Key="ClueStyleGrid" TargetType="Grid">
+			<Setter Property="MinHeight" Value="70" />
+		</Style>
+		<Style x:Key="BonusStyleGrid" TargetType="Grid">
+			<Setter Property="MinHeight" Value="50" />
+		</Style>
+		<Style x:Key="ClueStyleDescription" TargetType="TextBlock">
+			<Setter Property="Margin" Value="0,0,100,0" />
+			<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMedium}" />
+		</Style>
+		<Style x:Key="BonusStyleDescription" TargetType="TextBlock">
+			<Setter Property="Margin" Value="50,0,100,0" />
+			<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}" />
+		</Style>
+		
+		<cvt:ClueStyleConverter x:Key="ClueGridStyleConverter" BonusStyle="{StaticResource BonusStyleGrid}" ClueStyle="{StaticResource ClueStyleGrid}" />
+		<cvt:ClueStyleConverter x:Key="ClueDescriptionStyleConverter" BonusStyle="{StaticResource BonusStyleDescription}" ClueStyle="{StaticResource ClueStyleDescription}" />
+		
+		<DataTemplate x:Key="ClueListItemTemplate">
+        	<Grid d:DesignWidth="456" Style="{Binding IsBonus, Converter={StaticResource ClueGridStyleConverter}}">
+				<TextBlock Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}" Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Center" />
 				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
 			</Grid> 
         </DataTemplate>
@@ -25,7 +44,7 @@
 			<TextBlock Text="{Binding Name}" />
 		</DataTemplate>
 		<DataTemplate x:Key="PivotItemTemplate">
-			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListTemplate}" SelectionMode="Extended">
+			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListItemTemplate}" SelectionMode="Extended">
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
 						<Setter Property="HorizontalContentAlignment" Value="Stretch" />

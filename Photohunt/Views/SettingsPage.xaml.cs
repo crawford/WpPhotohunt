@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.Phone.Controls;
+﻿using Microsoft.Phone.Controls;
 using System.Windows;
 using System.Windows.Controls;
 using Photohunt.Models;
@@ -60,35 +58,13 @@ namespace Photohunt
             });
         }
 
-        void ApiService_FetchCluesCompleted(bool success, string errorString, Clue[] clues)
+        void ApiService_FetchCluesCompleted(bool success, string errorString, Dictionary<string, List<Clue>> clues)
         {
             System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 if (success)
                 {
-                    Dictionary<string, List<Clue>> categories = new Dictionary<string, List<Clue>>();
-                    categories["all"] = new List<Clue>();
-                    foreach (Clue clue in clues)
-                    {
-                        foreach (string tag in clue.Tags)
-                        {
-                            if (!categories.ContainsKey(tag))
-                                categories[tag] = new List<Clue>();
-
-                            categories[tag].Add(clue);
-                        }
-
-                        categories["all"].Add(clue);
-                    }
-
-                    ClueCategory[] cats = new ClueCategory[categories.Keys.Count];
-                    int i = 0;
-                    foreach (string cat in categories.Keys)
-                    {
-                        cats[i] = new ClueCategory(cat.ToLower(), categories[cat].ToArray());
-                        i++;
-                    }
-                    App.ContestService.Categories = cats;
+                    App.ContestService.Categories = clues;
                 }
                 else
                 {
