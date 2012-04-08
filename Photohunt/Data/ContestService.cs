@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System;
 using System.IO.IsolatedStorage;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Photohunt.Data
 {
@@ -19,6 +20,7 @@ namespace Photohunt.Data
         private DateTime _endTime;
         private IsolatedStorageSettings _settings;
         private Dictionary<string, List<Clue>> _clues;
+        private Thread _sync;
 
         private const string KEY_PHOTOS               = "photos";
         private const string KEY_MAX_PHOTOS           = "MaxPhotos";
@@ -41,18 +43,6 @@ namespace Photohunt.Data
             return photo;
         }
 
-        public void Photo_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "Judge")
-            {
-                Photo photo = (Photo)sender;
-                if (photo.Judge)
-                    JudgedPhotoCount++;
-                else
-                    JudgedPhotoCount--;
-            }
-        }
-
         public void Load()
         {
             if (!_settings.Contains(KEY_MAX_PHOTOS))           _settings[KEY_MAX_PHOTOS]           = 0;
@@ -73,12 +63,7 @@ namespace Photohunt.Data
 
             NotifyPropertyChanged("Photos");
 
-            _photos.CollectionChanged += (o, r) =>
-            {
-                _settings[KEY_PHOTOS] = _photos;
-                _settings.Save();
-                NotifyPropertyChanged("PhotoCount");
-            };
+            _photos.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(Photos_CollectionChanged);
 
             _judgeCount = 0;
             foreach (Photo p in _photos)
@@ -99,6 +84,113 @@ namespace Photohunt.Data
         public void EndGame()
         {
             App.SettingsService.ActiveGame = false;
+        }
+
+        private void Photos_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            _settings[KEY_PHOTOS] = _photos;
+            _settings.Save();
+            NotifyPropertyChanged("PhotoCount");
+            SyncPhotos();
+        }
+
+        public void Photo_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Judge")
+            {
+                Photo photo = (Photo)sender;
+                if (photo.Judge)
+                    JudgedPhotoCount++;
+                else
+                    JudgedPhotoCount--;
+            }
+            _settings[KEY_PHOTOS] = _photos;
+            _settings.Save();
+            SyncPhotos();
+        }
+
+        private void SyncPhotos()
+        {
+            if (_sync == null)
+            {
+                _sync = new Thread(new ThreadStart(BackgroundSync));
+                _sync.Start();
+            }
+        }
+
+        private void BackgroundSync() {
+            System.Diagnostics.Debug.WriteLine("Beginning sync");
+
+            while (true) {
+                bool allClean = true;
+                foreach (Photo photo in _photos)
+                {
+                    if (!photo.Dirty)
+                        continue;
+
+                    allClean = false;
+                    if (photo.Updating)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Waiting on " + photo.GetHashCode());
+                        continue;
+                    }
+
+                    if (photo.ServerId == null)
+                    {
+                        photo.Update();
+                        App.ApiService.UploadPhoto(photo, (uploadSuccess, uploadedPhoto) =>
+                        {
+                            if (uploadSuccess)
+                            {
+                                App.ApiService.SendPhotoMetadata(uploadedPhoto, (metadataSuccess, updatedPhoto) =>
+                                {
+                                    updatedPhoto.FinishUpdate();
+                                    if (metadataSuccess)
+                                    {
+                                        updatedPhoto.Dirty = false;
+                                        System.Diagnostics.Debug.WriteLine("Done updating " + updatedPhoto.GetHashCode());
+                                    }
+                                    else
+                                    {
+                                        System.Diagnostics.Debug.WriteLine("Done updating - Error " + updatedPhoto.GetHashCode());
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                uploadedPhoto.FinishUpdate();
+                                System.Diagnostics.Debug.WriteLine("Done updating - Error " + uploadedPhoto.GetHashCode());
+                            }
+                        });
+                    }
+                    else
+                    {
+                        photo.Update();
+                        App.ApiService.SendPhotoMetadata(photo, (metadataSuccess, updatedPhoto) =>
+                        {
+                            updatedPhoto.FinishUpdate();
+                            if (metadataSuccess)
+                            {
+                                updatedPhoto.Dirty = false;
+                                System.Diagnostics.Debug.WriteLine("Done updating " + updatedPhoto.GetHashCode());
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Done updating - Error " + updatedPhoto.GetHashCode());
+                            }
+                        });
+                    }
+                }
+                if (allClean)
+                {
+                    System.Diagnostics.Debug.WriteLine("Sync complete");
+                    break;
+                }
+
+                System.Diagnostics.Debug.WriteLine("Sync sleeping");
+                Thread.Sleep(10000);
+            }
+            _sync = null;
         }
 
         private void NotifyPropertyChanged(string property)

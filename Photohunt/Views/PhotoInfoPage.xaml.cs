@@ -50,13 +50,19 @@ namespace Photohunt.Views
             }
             else
             {
-                IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication();
                 BitmapImage image = new BitmapImage();
                 try
                 {
-                    IsolatedStorageFileStream stream = store.OpenFile(App.PhotoInfoViewModel.CurrentPhoto.Path.AbsolutePath, FileMode.Open);
-                    image.SetSource(stream);
-                    stream.Close();
+                    lock (App.IsolatedStorageFileLock)
+                    {
+                        using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
+                        {
+                            using (IsolatedStorageFileStream stream = store.OpenFile(App.PhotoInfoViewModel.CurrentPhoto.Path.AbsolutePath, FileMode.Open))
+                            {
+                                image.SetSource(stream);
+                            }
+                        }
+                    }
                 }
                 catch (IsolatedStorageException)
                 {

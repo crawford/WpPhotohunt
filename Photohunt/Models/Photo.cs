@@ -12,6 +12,8 @@ namespace Photohunt.Models
         private List<Clue> _clues;
         private Uri _path;
         private bool _dirty;
+        private string _serverId;
+        private bool _updating;
 
         public Photo()
         {
@@ -19,12 +21,23 @@ namespace Photohunt.Models
             _judge = false;
             _clues = new List<Clue>();
             _dirty = false;
+            _serverId = null;
         }
 
         public Photo(Uri path) : this()
         {
             _path = path;
             _dirty = true;
+        }
+
+        public void Update()
+        {
+            _updating = true;
+        }
+
+        public void FinishUpdate()
+        {
+            _updating = false;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -112,7 +125,32 @@ namespace Photohunt.Models
             }
             set
             {
-                _dirty = value;
+                if (_dirty != value)
+                {
+                    _dirty = value;
+                    NotifyPropertyChanged("Dirty");
+                }
+            }
+        }
+
+        public string ServerId
+        {
+            get
+            {
+                return _serverId;
+            }
+
+            set
+            {
+                _serverId = value;
+            }
+        }
+
+        public bool Updating
+        {
+            get
+            {
+                return _updating;
             }
         }
 

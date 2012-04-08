@@ -13,6 +13,8 @@ namespace Photohunt
         // Easy access to the root frame
         public PhoneApplicationFrame RootFrame { get; private set; }
 
+        public static object IsolatedStorageFileLock = new object();
+
         #region ViewModels
 
         private static MainViewModel _mainViewModel = null;

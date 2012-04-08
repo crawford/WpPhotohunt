@@ -38,16 +38,23 @@
         	<Grid d:DesignWidth="456" Style="{Binding IsBonus, Converter={StaticResource ClueGridStyleConverter}}">
 				<TextBlock Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}" Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Center" />
 				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
-			</Grid> 
+			</Grid>
         </DataTemplate>
 		<DataTemplate x:Key="PivotHeaderTemplate">
 			<TextBlock Text="{Binding Name}" />
 		</DataTemplate>
 		<DataTemplate x:Key="PivotItemTemplate">
-			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListItemTemplate}" SelectionMode="Extended">
+			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListItemTemplate}">
 				<ListBox.ItemContainerStyle>
 					<Style TargetType="ListBoxItem">
 						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListBoxItem">
+									<ContentPresenter IsHitTestVisible="False" />
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
 					</Style>
 				</ListBox.ItemContainerStyle>
 			</ListBox>

@@ -13,15 +13,24 @@ namespace Photohunt.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Uri uri = (Uri)value;
-
-            IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication();
             BitmapImage image = new BitmapImage();
+
             try
             {
-                IsolatedStorageFileStream stream = store.OpenFile(uri.AbsolutePath, FileMode.Open);
-                image.SetSource(stream);
-                stream.Close();
-            } catch (Exception) {
+                lock (App.IsolatedStorageFileLock)
+                {
+                    using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
+                    {
+                        using (IsolatedStorageFileStream stream = store.OpenFile(uri.AbsolutePath, FileMode.Open, FileAccess.Read))
+                        {
+                            image.SetSource(stream);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
                 MessageBox.Show("Error loading image from storage");
             }
             

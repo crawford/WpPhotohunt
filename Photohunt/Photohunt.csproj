@@ -75,6 +75,7 @@
     <Compile Include="Models\Clue.cs" />
     <Compile Include="Models\ClueCategory.cs" />
     <Compile Include="Models\ClueResponse.cs" />
+    <Compile Include="Models\PhotoResponse.cs" />
     <Compile Include="Models\InfoResponse.cs" />
     <Compile Include="Models\Photo.cs" />
     <Compile Include="Models\Response.cs" />
