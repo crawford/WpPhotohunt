@@ -10,6 +10,8 @@ namespace Photohunt.Data
 {
     public class ContestService : INotifyPropertyChanged
     {
+        private const int RETRY_BACKOFF = 10 * 1000;
+
         public event PropertyChangedEventHandler PropertyChanged;
         private ObservableCollection<Photo> _photos;
         private int _maxPhotoCount;
@@ -21,6 +23,7 @@ namespace Photohunt.Data
         private IsolatedStorageSettings _settings;
         private Dictionary<string, List<Clue>> _clues;
         private Thread _sync;
+        private bool _syncComplete;
 
         private const string KEY_PHOTOS               = "photos";
         private const string KEY_MAX_PHOTOS           = "MaxPhotos";
@@ -33,6 +36,7 @@ namespace Photohunt.Data
         public ContestService()
         {
             _settings = IsolatedStorageSettings.ApplicationSettings;
+            _syncComplete = true;
         }
 
         public Photo CreatePhoto(Uri path)
@@ -111,6 +115,7 @@ namespace Photohunt.Data
 
         private void SyncPhotos()
         {
+            SyncComplete = false;
             if (_sync == null)
             {
                 _sync = new Thread(new ThreadStart(BackgroundSync));
@@ -120,77 +125,77 @@ namespace Photohunt.Data
 
         private void BackgroundSync() {
             System.Diagnostics.Debug.WriteLine("Beginning sync");
+            List<Photo> updating = new List<Photo>();
 
             while (true) {
-                bool allClean = true;
+                
                 foreach (Photo photo in _photos)
                 {
                     if (!photo.Dirty)
                         continue;
 
-                    allClean = false;
-                    if (photo.Updating)
+                    if (updating.Contains(photo))
                     {
                         System.Diagnostics.Debug.WriteLine("Waiting on " + photo.GetHashCode());
                         continue;
                     }
 
+                    updating.Add(photo);
+
                     if (photo.ServerId == null)
-                    {
-                        photo.Update();
-                        App.ApiService.UploadPhoto(photo, (uploadSuccess, uploadedPhoto) =>
-                        {
-                            if (uploadSuccess)
-                            {
-                                App.ApiService.SendPhotoMetadata(uploadedPhoto, (metadataSuccess, updatedPhoto) =>
-                                {
-                                    updatedPhoto.FinishUpdate();
-                                    if (metadataSuccess)
-                                    {
-                                        updatedPhoto.Dirty = false;
-                                        System.Diagnostics.Debug.WriteLine("Done updating " + updatedPhoto.GetHashCode());
-                                    }
-                                    else
-                                    {
-                                        System.Diagnostics.Debug.WriteLine("Done updating - Error " + updatedPhoto.GetHashCode());
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                uploadedPhoto.FinishUpdate();
-                                System.Diagnostics.Debug.WriteLine("Done updating - Error " + uploadedPhoto.GetHashCode());
-                            }
-                        });
-                    }
+                        App.ApiService.UploadPhoto(photo, updating, UploadPhotoCallback);
                     else
-                    {
-                        photo.Update();
-                        App.ApiService.SendPhotoMetadata(photo, (metadataSuccess, updatedPhoto) =>
-                        {
-                            updatedPhoto.FinishUpdate();
-                            if (metadataSuccess)
-                            {
-                                updatedPhoto.Dirty = false;
-                                System.Diagnostics.Debug.WriteLine("Done updating " + updatedPhoto.GetHashCode());
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.WriteLine("Done updating - Error " + updatedPhoto.GetHashCode());
-                            }
-                        });
-                    }
+                        App.ApiService.SendPhotoMetadata(photo, updating, SendPhotoMetadataCallback);
                 }
-                if (allClean)
+                if (updating.Count == 0)
                 {
                     System.Diagnostics.Debug.WriteLine("Sync complete");
+                    System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        SyncComplete = true;
+                    });
                     break;
                 }
 
                 System.Diagnostics.Debug.WriteLine("Sync sleeping");
-                Thread.Sleep(10000);
+                Thread.Sleep(RETRY_BACKOFF);
             }
+
             _sync = null;
+        }
+
+        private void SendPhotoMetadataCallback(bool success, Photo photo, List<Photo> updating)
+        {
+            updating.Remove(photo);
+            //This should work...
+            /*if (updating.Count == 0)
+                System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    SyncComplete = true;
+                });*/
+
+            if (success)
+            {
+                photo.Dirty = false;
+                System.Diagnostics.Debug.WriteLine("Done updating " + photo.GetHashCode());
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Done updating - Error " + photo.GetHashCode());
+            }
+        }
+
+        private void UploadPhotoCallback(bool success, Photo photo, List<Photo> updating)
+        {
+            if (success)
+            {
+                App.ApiService.SendPhotoMetadata(photo, updating, SendPhotoMetadataCallback);
+            }
+            else
+            {
+                updating.Remove(photo);
+                System.Diagnostics.Debug.WriteLine("Done updating - Error " + photo.GetHashCode());
+            }
         }
 
         private void NotifyPropertyChanged(string property)
@@ -339,6 +344,22 @@ namespace Photohunt.Data
                     _settings[KEY_CLUES] = value;
                     _settings.Save();
                     NotifyPropertyChanged("Categories");
+                }
+            }
+        }
+
+        public bool SyncComplete
+        {
+            get
+            {
+                return _syncComplete;
+            }
+            set
+            {
+                if (_syncComplete != value)
+                {
+                    _syncComplete = value;
+                    NotifyPropertyChanged("SyncComplete");
                 }
             }
         }

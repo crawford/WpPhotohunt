@@ -5,6 +5,7 @@ using Photohunt.Data;
 using System.Collections.Generic;
 using System;
 using System.Threading;
+using Microsoft.Phone.Shell;
 
 namespace Photohunt.ViewModels
 {
@@ -41,6 +42,9 @@ namespace Photohunt.ViewModels
                 case "StartTime":
                 case "EndTime":
                     NotifyPropertyChanged("TimeRemaining");
+                    break;
+                case "SyncComplete":
+                    NotifyPropertyChanged("SyncInProgress");
                     break;
             }
         }
@@ -96,6 +100,14 @@ namespace Photohunt.ViewModels
                     return string.Format("-{0}:{1:00}", (int)-span.TotalHours, -span.Minutes);
                 else
                     return string.Format("{0}:{1:00}", (int)span.TotalHours, span.Minutes);
+            }
+        }
+
+        public bool SyncInProgress
+        {
+            get
+            {
+                return !App.ContestService.SyncComplete;
             }
         }
 

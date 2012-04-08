@@ -43,6 +43,7 @@
 		<DataTemplate x:Key="PivotHeaderTemplate">
 			<TextBlock Text="{Binding Name}" />
 		</DataTemplate>
+		
 		<DataTemplate x:Key="PivotItemTemplate">
 			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListItemTemplate}">
 				<ListBox.ItemContainerStyle>

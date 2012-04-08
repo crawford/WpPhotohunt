@@ -58,7 +58,7 @@ namespace Photohunt.Data
             });
         }
 
-        public void UploadPhoto(Photo photo, Action<bool, Photo> callback)
+        public void UploadPhoto(Photo photo, List<Photo> updating, Action<bool, Photo, List<Photo>> callback)
         {
             System.Diagnostics.Debug.WriteLine("Uploading photo " + photo.GetHashCode());
 
@@ -73,7 +73,7 @@ namespace Photohunt.Data
             {
                 string json = "{\"clues\":[],\"judge\":true,\"notes\":\"\"}";
                 byte[] metadataBytes = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"json\"; filename=\"poop\"\r\nContent-Type: application/json\r\n\r\n" + json);
-                byte[] fileheaderBytes = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"poop\"\r\nContent-Type: image/jpeg\r\n\r\n" + json);
+                byte[] fileheaderBytes = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"poop\"\r\nContent-Type: image/jpeg\r\n\r\n");
                 byte[] trailerBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
 
                 try
@@ -104,7 +104,7 @@ namespace Photohunt.Data
                 }
                 catch (Exception ex)
                 {
-                    callback(false, photo);
+                    callback(false, photo, updating);
                     System.Diagnostics.Debug.WriteLine(ex.Message);
                 }
 
@@ -121,18 +121,18 @@ namespace Photohunt.Data
                             if (response.Status == Response.STATUS.ERR_SUCCESS)
                             {
                                 photo.ServerId = response.Id;
-                                callback(true, photo);
+                                callback(true, photo, updating);
                             }
                             else
                             {
-                                callback(false, photo);
+                                callback(false, photo, updating);
                                 System.Diagnostics.Debug.WriteLine("Error:" + response.Message);
                             }
                         }
                     }
                     catch (WebException e)
                     {
-                        callback(false, photo);
+                        callback(false, photo, updating);
                         try
                         {
                             using (Stream responseStream = e.Response.GetResponseStream())
@@ -156,17 +156,17 @@ namespace Photohunt.Data
                     }
                     catch (Exception ex)
                     {
-                        callback(false, photo);
+                        callback(false, photo, updating);
                         System.Diagnostics.Debug.WriteLine(ex.Message);
                     }
                 }, null);
             }, null);
         }
 
-        public void SendPhotoMetadata(Photo photo, Action<bool, Photo> callback)
+        public void SendPhotoMetadata(Photo photo, List<Photo> updating, Action<bool, Photo, List<Photo>> callback)
         {
             System.Diagnostics.Debug.WriteLine("Updating photo metadata");
-            callback(true, photo);
+            callback(true, photo, updating);
         }
 
         private void MakeRequest(string address, Type type, Action<Response> callback)

@@ -23,6 +23,10 @@
 		<StaticResource ResourceKey="PhoneForegroundBrush"/>
 	</phone:PhoneApplicationPage.Foreground>
     
+	<shell:SystemTray.ProgressIndicator>
+		<shell:ProgressIndicator IsIndeterminate="True" IsVisible="{Binding SyncInProgress}" Text="Uploading photos..." />
+	</shell:SystemTray.ProgressIndicator>
+	
     <!-- Sample code showing usage of ApplicationBar -->
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
@@ -42,7 +46,7 @@
 				<TextBlock Margin="8,8,8,0" TextWrapping="Wrap" Text="Photos Taken" VerticalAlignment="Top"/>
 				<TextBlock x:Name="LblPhotosTaken" Margin="8,39,8,0" TextWrapping="Wrap" Text="{Binding PhotosTakenString, Mode=OneWay}" VerticalAlignment="Top" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32"/>
 				<TextBlock Margin="8,214,8,0" TextWrapping="Wrap" Text="Points Submitted" VerticalAlignment="Top"/>
-				<TextBlock x:Name="LblPoints" Margin="8,245,8,251" TextWrapping="Wrap" Text="56" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" d:LayoutOverrides="Height"/>
+				<TextBlock x:Name="LblPoints" Margin="8,245,8,251" TextWrapping="Wrap" Text="fuck off" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" d:LayoutOverrides="Height"/>
 				<TextBlock Margin="8,0,8,190" TextWrapping="Wrap" Text="Time Remaining" VerticalAlignment="Bottom"/>
 				<TextBlock x:Name="LblTime" Margin="8,0,8,147" TextWrapping="Wrap" Text="{Binding TimeRemaining, Mode=OneWay}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="32" VerticalAlignment="Bottom"/>
 				<TextBlock Margin="8,111,-267,0" TextWrapping="Wrap" Text="Photos Submitted for Judging" VerticalAlignment="Top"/>

@@ -13,7 +13,6 @@ namespace Photohunt.Models
         private Uri _path;
         private bool _dirty;
         private string _serverId;
-        private bool _updating;
 
         public Photo()
         {
@@ -28,16 +27,6 @@ namespace Photohunt.Models
         {
             _path = path;
             _dirty = true;
-        }
-
-        public void Update()
-        {
-            _updating = true;
-        }
-
-        public void FinishUpdate()
-        {
-            _updating = false;
         }
 
         private void NotifyPropertyChanged(string property)
@@ -143,14 +132,6 @@ namespace Photohunt.Models
             set
             {
                 _serverId = value;
-            }
-        }
-
-        public bool Updating
-        {
-            get
-            {
-                return _updating;
             }
         }
 

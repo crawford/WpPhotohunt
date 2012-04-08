@@ -9,6 +9,12 @@ namespace Photohunt.Models
         private string _name;
         private List<Clue> _clues;
 
+        public ClueCategory()
+        {
+            _name = "";
+            _clues = new List<Clue>();
+        }
+
         public ClueCategory(string name)
         {
             _name = name;
