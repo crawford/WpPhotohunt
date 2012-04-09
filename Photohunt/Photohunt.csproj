@@ -72,6 +72,7 @@
     <Compile Include="Data\ApiService.cs" />
     <Compile Include="Data\ContestService.cs" />
     <Compile Include="Data\SettingsService.cs" />
+    <Compile Include="Models\CheckableClue.cs" />
     <Compile Include="Models\Clue.cs" />
     <Compile Include="Models\ClueCategory.cs" />
     <Compile Include="Models\ClueResponse.cs" />
@@ -86,8 +87,11 @@
     <Compile Include="Views\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Clues.xaml.cs">
-      <DependentUpon>Clues.xaml</DependentUpon>
+    <Compile Include="Views\ClueList.xaml.cs">
+      <DependentUpon>ClueList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CluePicker.xaml.cs">
+      <DependentUpon>CluePicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -117,7 +121,11 @@
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Clues.xaml">
+    <Page Include="Views\ClueList.xaml">
+      <Generator>MSBuild:MarkupCompilePass1</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CluePicker.xaml">
       <Generator>MSBuild:MarkupCompilePass1</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -143,6 +151,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Background.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\appbar.check.rest.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\appbar.questionmark.rest.png">

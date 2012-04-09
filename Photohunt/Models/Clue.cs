@@ -20,6 +20,9 @@ namespace Photohunt.Models
         [DataMember(Name = "tags", IsRequired = false)]
         public string[] Tags { get; set; }
 
-        public bool IsBonus { get; set; }
+        public Clue Clone()
+        {
+            return new Clue { Description = this.Description, Id = this.Id, Points = this.Points, Tags = this.Tags };
+        }
     }
 }

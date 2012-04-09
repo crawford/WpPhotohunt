@@ -83,11 +83,13 @@ namespace Photohunt.Data
             _photos.Clear();
             JudgedPhotoCount = 0;
             App.SettingsService.ActiveGame = true;
+            NotifyPropertyChanged("ActiveGame");
         }
 
         public void EndGame()
         {
             App.SettingsService.ActiveGame = false;
+            NotifyPropertyChanged("ActiveGame");
         }
 
         private void Photos_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -361,6 +363,14 @@ namespace Photohunt.Data
                     _syncComplete = value;
                     NotifyPropertyChanged("SyncComplete");
                 }
+            }
+        }
+
+        public bool ActiveGame
+        {
+            get
+            {
+                return App.SettingsService.ActiveGame;
             }
         }
 

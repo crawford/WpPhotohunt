@@ -39,7 +39,7 @@
         	<Image x:Name="ImgPhoto" Margin="0,0,0,193" Height="342"/>
         	<CheckBox x:Name="ChkJudge" Content="Judge photo" Margin="8,0,0,8" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="207" IsChecked="{Binding CurrentPhoto.Judge, Mode=TwoWay, UpdateSourceTrigger=Explicit}"/>
         	<TextBox x:Name="TxtNotes" Margin="8,0,8,86" TextWrapping="Wrap" VerticalAlignment="Bottom" Text="{Binding CurrentPhoto.Notes, Mode=OneWay}"/>
-        	<Button x:Name="BtnClues" Content="Clues" Margin="0,0,8,8" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="191" Height="74"/>
+        	<Button x:Name="BtnClues" Content="Clues" Margin="0,0,8,8" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="191" Height="74" Click="BtnClues_Click" />
         	<TextBlock HorizontalAlignment="Left" Margin="8,0,0,162" TextWrapping="Wrap" Text="Notes" VerticalAlignment="Bottom" Width="123" RenderTransformOrigin="-0.033,0.385"/></Grid>
     </Grid>
 

@@ -7,22 +7,16 @@ namespace Photohunt.Models
     public class ClueCategory
     {
         private string _name;
-        private List<Clue> _clues;
-
-        public ClueCategory()
-        {
-            _name = "";
-            _clues = new List<Clue>();
-        }
+        private List<CheckableClue> _clues;
 
         public ClueCategory(string name)
         {
             _name = name;
-            _clues = new List<Clue>();
+            _clues = new List<CheckableClue>();
         }
 
         [DataMember]
-        public List<Clue> Clues
+        public List<CheckableClue> Clues
         {
             get
             {

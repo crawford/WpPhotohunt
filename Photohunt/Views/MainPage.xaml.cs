@@ -6,6 +6,7 @@ using System;
 using Photohunt.Models;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls;
+using Microsoft.Phone.Shell;
 
 namespace Photohunt.Views
 {
@@ -23,7 +24,12 @@ namespace Photohunt.Views
             base.OnNavigatedTo(e);
 
             if (DataContext == null)
+            {
                 DataContext = App.MainViewModel;
+            }
+
+            ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = App.ContestService.ActiveGame;
+            ((ApplicationBarIconButton)ApplicationBar.Buttons[1]).IsEnabled = App.ContestService.ActiveGame;
 
             if (_firstLaunch)
             {
@@ -65,7 +71,7 @@ namespace Photohunt.Views
 
         private void AbbClues_Click(object sender, System.EventArgs e)
         {
-            NavigationService.Navigate(new Uri("/Views/Clues.xaml", UriKind.Relative));
+            NavigationService.Navigate(new Uri("/Views/ClueList.xaml", UriKind.Relative));
         }
     }
 }

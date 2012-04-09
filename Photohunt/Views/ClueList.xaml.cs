@@ -4,9 +4,9 @@ using Microsoft.Phone.Controls;
 
 namespace Photohunt
 {
-    public partial class Clues : PhoneApplicationPage
+    public partial class ClueList : PhoneApplicationPage
     {
-        public Clues()
+        public ClueList()
         {
             InitializeComponent();
         }

@@ -114,5 +114,10 @@ namespace Photohunt.Views
                 cameraCancelled = true;
             }
         }
+
+        private void BtnClues_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/Views/CluePicker.xaml", UriKind.Relative));
+        }
     }
 }

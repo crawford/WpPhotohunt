@@ -1,0 +1,71 @@
+﻿<phone:PhoneApplicationPage 
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+	xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
+	x:Class="Photohunt.CluePicker"
+	FontFamily="{StaticResource PhoneFontFamilyNormal}"
+	FontSize="{StaticResource PhoneFontSizeNormal}"
+	Foreground="{StaticResource PhoneForegroundBrush}"
+	SupportedOrientations="Portrait" Orientation="Portrait"
+	shell:SystemTray.IsVisible="True"
+	xmlns:cvt="clr-namespace:Photohunt.Converters">
+	
+	<phone:PhoneApplicationPage.Resources>
+		<Style x:Key="ClueStyleGrid" TargetType="Grid">
+			<Setter Property="MinHeight" Value="70" />
+		</Style>
+		<Style x:Key="BonusStyleGrid" TargetType="Grid">
+			<Setter Property="MinHeight" Value="50" />
+		</Style>
+		<Style x:Key="ClueStyleDescription" TargetType="CheckBox">
+			<Setter Property="Margin" Value="0,0,100,0" />
+			<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeMedium}" />
+		</Style>
+		<Style x:Key="BonusStyleDescription" TargetType="CheckBox">
+			<Setter Property="Margin" Value="50,0,100,0" />
+			<Setter Property="FontSize" Value="{StaticResource PhoneFontSizeSmall}" />
+		</Style>
+		
+		<cvt:ClueStyleConverter x:Key="ClueGridStyleConverter" BonusStyle="{StaticResource BonusStyleGrid}" ClueStyle="{StaticResource ClueStyleGrid}" />
+		<cvt:ClueStyleConverter x:Key="ClueDescriptionStyleConverter" BonusStyle="{StaticResource BonusStyleDescription}" ClueStyle="{StaticResource ClueStyleDescription}" />
+		
+		<DataTemplate x:Key="ClueListItemTemplate">
+        	<Grid d:DesignWidth="456" Style="{Binding IsBonus, Converter={StaticResource ClueGridStyleConverter}}">
+                <CheckBox VerticalAlignment="Center" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding IsChecked, Mode=TwoWay}" Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}">
+					<TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+				</CheckBox>
+				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
+			</Grid>
+        </DataTemplate>
+		<DataTemplate x:Key="PivotHeaderTemplate">
+			<TextBlock Text="{Binding Name}" />
+		</DataTemplate>
+		
+		<DataTemplate x:Key="PivotItemTemplate">
+			<ListBox ItemsSource="{Binding Clues}" ItemTemplate="{StaticResource ClueListItemTemplate}">
+				<ListBox.ItemContainerStyle>
+					<Style TargetType="ListBoxItem">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+					</Style>
+				</ListBox.ItemContainerStyle>
+			</ListBox>
+   		</DataTemplate>
+	</phone:PhoneApplicationPage.Resources>
+	<phone:PhoneApplicationPage.ApplicationBar>
+		<shell:ApplicationBar>
+            <shell:ApplicationBarIconButton x:Name="AbbApply" IconUri="/Images/appbar.check.rest.png" Text="apply" Click="AbbApply_Click"/>
+			<shell:ApplicationBarIconButton x:Name="AbbCancel" IconUri="/Images/appbar.cancel.rest.png" Text="cancel" Click="AbbCancel_Click"/>
+		</shell:ApplicationBar>
+	</phone:PhoneApplicationPage.ApplicationBar>
+
+	<!--LayoutRoot is the root grid where all page content is placed-->
+	<Grid x:Name="LayoutRoot" Background="Transparent">
+		<!--Pivot Control-->
+		<controls:Pivot x:Name="PvtClues" Title="PHOTOHUNT - CLUES" ItemsSource="{Binding Categories}" HeaderTemplate="{StaticResource PivotHeaderTemplate}" ItemTemplate="{StaticResource PivotItemTemplate}" />
+	</Grid>
+</phone:PhoneApplicationPage>
