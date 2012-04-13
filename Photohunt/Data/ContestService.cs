@@ -49,21 +49,24 @@ namespace Photohunt.Data
 
         public void Load()
         {
-            if (!_settings.Contains(KEY_MAX_PHOTOS))           _settings[KEY_MAX_PHOTOS]           = 0;
-            if (!_settings.Contains(KEY_MAX_JUDGEABLE_PHOTOS)) _settings[KEY_MAX_JUDGEABLE_PHOTOS] = 0;
-            if (!_settings.Contains(KEY_TEAM_NAME))            _settings[KEY_TEAM_NAME]            = "team";
-            if (!_settings.Contains(KEY_START_TIME))           _settings[KEY_START_TIME]           = DateTime.Now;
-            if (!_settings.Contains(KEY_END_TIME))             _settings[KEY_END_TIME]             = DateTime.Now;
-            if (!_settings.Contains(KEY_PHOTOS))               _settings[KEY_PHOTOS]               = new ObservableCollection<Photo>();
-            if (!_settings.Contains(KEY_CLUES))                _settings[KEY_CLUES]                = new Dictionary<string, List<Clue>>();
+            lock (App.IsolatedStorageSettingsLock)
+            {
+                if (!_settings.Contains(KEY_MAX_PHOTOS)) _settings[KEY_MAX_PHOTOS] = 0;
+                if (!_settings.Contains(KEY_MAX_JUDGEABLE_PHOTOS)) _settings[KEY_MAX_JUDGEABLE_PHOTOS] = 0;
+                if (!_settings.Contains(KEY_TEAM_NAME)) _settings[KEY_TEAM_NAME] = "team";
+                if (!_settings.Contains(KEY_START_TIME)) _settings[KEY_START_TIME] = DateTime.Now;
+                if (!_settings.Contains(KEY_END_TIME)) _settings[KEY_END_TIME] = DateTime.Now;
+                if (!_settings.Contains(KEY_PHOTOS)) _settings[KEY_PHOTOS] = new ObservableCollection<Photo>();
+                if (!_settings.Contains(KEY_CLUES)) _settings[KEY_CLUES] = new Dictionary<string, List<Clue>>();
 
-            MaxPhotoCount       = (int)                           _settings[KEY_MAX_PHOTOS];
-            MaxJudgedPhotoCount = (int)                           _settings[KEY_MAX_JUDGEABLE_PHOTOS];
-            TeamName            = (string)                        _settings[KEY_TEAM_NAME];
-            StartTime           = (DateTime)                      _settings[KEY_START_TIME];
-            EndTime             = (DateTime)                      _settings[KEY_END_TIME];
-            _photos             = (ObservableCollection<Photo>)   _settings[KEY_PHOTOS];
-            _clues              = (Dictionary<string, List<Clue>>)_settings[KEY_CLUES];
+                MaxPhotoCount = (int)_settings[KEY_MAX_PHOTOS];
+                MaxJudgedPhotoCount = (int)_settings[KEY_MAX_JUDGEABLE_PHOTOS];
+                TeamName = (string)_settings[KEY_TEAM_NAME];
+                StartTime = (DateTime)_settings[KEY_START_TIME];
+                EndTime = (DateTime)_settings[KEY_END_TIME];
+                _photos = (ObservableCollection<Photo>)_settings[KEY_PHOTOS];
+                _clues = (Dictionary<string, List<Clue>>)_settings[KEY_CLUES];
+            }
 
             NotifyPropertyChanged("Photos");
 
@@ -72,9 +75,11 @@ namespace Photohunt.Data
             _judgeCount = 0;
             foreach (Photo p in _photos)
             {
-                p.PropertyChanged += new PropertyChangedEventHandler(Photo_PropertyChanged);
                 if (p.Judge)
                     JudgedPhotoCount++;
+                if (p.Dirty)
+                    SyncPhotos();
+                p.PropertyChanged += new PropertyChangedEventHandler(Photo_PropertyChanged);
             }
         }
 
@@ -82,6 +87,8 @@ namespace Photohunt.Data
         {
             _photos.Clear();
             JudgedPhotoCount = 0;
+            _sync.Abort();
+            SyncComplete = true;
             App.SettingsService.ActiveGame = true;
             NotifyPropertyChanged("ActiveGame");
         }
@@ -94,24 +101,34 @@ namespace Photohunt.Data
 
         private void Photos_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            _settings[KEY_PHOTOS] = _photos;
-            _settings.Save();
+            lock (App.IsolatedStorageSettingsLock)
+            {
+                _settings[KEY_PHOTOS] = _photos;
+                _settings.Save();
+            }
             NotifyPropertyChanged("PhotoCount");
             SyncPhotos();
         }
 
         public void Photo_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            Photo photo = (Photo)sender;
             if (e.PropertyName == "Judge")
             {
-                Photo photo = (Photo)sender;
                 if (photo.Judge)
                     JudgedPhotoCount++;
                 else
                     JudgedPhotoCount--;
             }
-            _settings[KEY_PHOTOS] = _photos;
-            _settings.Save();
+            else if (e.PropertyName != "Dirty")
+            {
+                photo.Dirty = true;
+            }
+            lock (App.IsolatedStorageSettingsLock)
+            {
+                _settings[KEY_PHOTOS] = _photos;
+                _settings.Save();
+            }
             SyncPhotos();
         }
 
@@ -129,12 +146,15 @@ namespace Photohunt.Data
             System.Diagnostics.Debug.WriteLine("Beginning sync");
             List<Photo> updating = new List<Photo>();
 
-            while (true) {
-                
+            while (true)
+            {
+                bool dirty = false;
                 foreach (Photo photo in _photos)
                 {
                     if (!photo.Dirty)
                         continue;
+
+                    dirty = true;
 
                     if (updating.Contains(photo))
                     {
@@ -149,7 +169,7 @@ namespace Photohunt.Data
                     else
                         App.ApiService.SendPhotoMetadata(photo, updating, SendPhotoMetadataCallback);
                 }
-                if (updating.Count == 0)
+                if (updating.Count == 0 && !dirty)
                 {
                     System.Diagnostics.Debug.WriteLine("Sync complete");
                     System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
@@ -229,8 +249,11 @@ namespace Photohunt.Data
                 if (_maxPhotoCount != value)
                 {
                     _maxPhotoCount = value;
-                    _settings[KEY_MAX_PHOTOS] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_MAX_PHOTOS] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("MaxPhotoCount");
                 }
             }
@@ -263,8 +286,11 @@ namespace Photohunt.Data
                 if (_maxJudgeCount != value)
                 {
                     _maxJudgeCount = value;
-                    _settings[KEY_MAX_JUDGEABLE_PHOTOS] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_MAX_JUDGEABLE_PHOTOS] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("MaxJudgedPhotoCount");
                 }
             }
@@ -289,8 +315,11 @@ namespace Photohunt.Data
                 if (_teamName != value)
                 {
                     _teamName = value;
-                    _settings[KEY_TEAM_NAME] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_TEAM_NAME] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("TeamName");
                 }
             }
@@ -307,8 +336,11 @@ namespace Photohunt.Data
                 if (_startTime != value)
                 {
                     _startTime = value;
-                    _settings[KEY_START_TIME] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_START_TIME] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("StartTime");
                 }
             }
@@ -325,8 +357,11 @@ namespace Photohunt.Data
                 if (_endTime != value)
                 {
                     _endTime = value;
-                    _settings[KEY_END_TIME] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_END_TIME] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("EndTime");
                 }
             }
@@ -343,8 +378,11 @@ namespace Photohunt.Data
                 if (_clues != value)
                 {
                     _clues = value;
-                    _settings[KEY_CLUES] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_CLUES] = value;
+                        _settings.Save();
+                    }
                     NotifyPropertyChanged("Categories");
                 }
             }

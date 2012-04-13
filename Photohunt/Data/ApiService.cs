@@ -11,7 +11,7 @@ namespace Photohunt.Data
 {
     public class ApiService
     {
-        private const string BASE_URL = @"http://test.acrawford.com/api"; //@"https://photohunt.csh.rit.edu/api";
+        private const string BASE_URL = @"https://photohunt.csh.rit.edu/api";
 
         public void FetchTeamInfo(Action<bool, string, TeamInfo> callback)
         {
@@ -63,7 +63,6 @@ namespace Photohunt.Data
             System.Diagnostics.Debug.WriteLine("Uploading photo " + photo.GetHashCode());
 
             string boundary = @"-----------";
-            byte[] boudaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
 
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(string.Format(@"{0}/photos/new?token={1}", BASE_URL, App.SettingsService.GameKey));
             request.ContentType = @"multipart/form-data; boundary=" + boundary;
@@ -71,41 +70,42 @@ namespace Photohunt.Data
 
             request.BeginGetRequestStream((asynchronousResult) =>
             {
-                string json = "{\"clues\":[],\"judge\":true,\"notes\":\"\"}";
-                byte[] metadataBytes = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"json\"; filename=\"poop\"\r\nContent-Type: application/json\r\n\r\n" + json);
-                byte[] fileheaderBytes = Encoding.UTF8.GetBytes("Content-Disposition: form-data; name=\"photo\"; filename=\"poop\"\r\nContent-Type: image/jpeg\r\n\r\n");
-                byte[] trailerBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+                string json = "{\"clues\":[],\"judge\":false,\"notes\":\"\"}";
 
                 try
                 {
                     using (Stream stream = request.EndGetRequestStream(asynchronousResult))
                     {
-                        stream.Write(boudaryBytes, 0, boudaryBytes.Length);
-                        stream.Write(metadataBytes, 0, metadataBytes.Length);
-                        stream.Write(boudaryBytes, 0, boudaryBytes.Length);
-                        stream.Write(fileheaderBytes, 0, fileheaderBytes.Length);
-
-                        lock (App.IsolatedStorageFileLock)
+                        using (StreamWriter writer = new StreamWriter(stream))
                         {
-                            using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
+                            writer.Write("\r\n--" + boundary + "\r\n");
+                            writer.Write("Content-Disposition: form-data; name=\"json\"; filename=\"poop\"\r\nContent-Type: application/json\r\n\r\n" + json);
+                            writer.Write("\r\n--" + boundary + "\r\n");
+                            writer.Write("Content-Disposition: form-data; name=\"photo\"; filename=\"poop\"\r\nContent-Type: image/jpeg\r\n\r\n");
+                            writer.Flush();
+
+                            lock (App.IsolatedStorageFileLock)
                             {
-                                using (IsolatedStorageFileStream fileStream = store.OpenFile(photo.Path.AbsolutePath, FileMode.Open, FileAccess.Read))
+                                using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
                                 {
-                                    byte[] buffer = new byte[4096];
-                                    int bytesRead;
-                                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
-                                        stream.Write(buffer, 0, bytesRead);
+                                    using (IsolatedStorageFileStream fileStream = store.OpenFile(photo.Path.AbsolutePath, FileMode.Open, FileAccess.Read))
+                                    {
+                                        byte[] buffer = new byte[4096];
+                                        int bytesRead;
+                                        while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                                            stream.Write(buffer, 0, bytesRead);
+                                    }
                                 }
                             }
-                        }
 
-                        stream.Write(trailerBytes, 0, trailerBytes.Length);
+                            writer.Write("\r\n--" + boundary + "--\r\n");
+                        }
                     }  
                 }
                 catch (Exception ex)
                 {
-                    callback(false, photo, updating);
                     System.Diagnostics.Debug.WriteLine(ex.Message);
+                    callback(false, photo, updating);
                 }
 
                 request.BeginGetResponse((asynchResult) =>
@@ -125,39 +125,38 @@ namespace Photohunt.Data
                             }
                             else
                             {
-                                callback(false, photo, updating);
                                 System.Diagnostics.Debug.WriteLine("Error:" + response.Message);
+                                callback(false, photo, updating);
                             }
                         }
                     }
                     catch (WebException e)
                     {
-                        callback(false, photo, updating);
-                        try
+                        if (System.Diagnostics.Debugger.IsAttached)
                         {
-                            using (Stream responseStream = e.Response.GetResponseStream())
+                            try
                             {
-                                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhotoResponse));
-                                PhotoResponse response = serializer.ReadObject(responseStream) as PhotoResponse;
-                                if (response == null)
+                                using (Stream responseStream = e.Response.GetResponseStream())
                                 {
-                                    System.Diagnostics.Debug.WriteLine("Error uploading photo");
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debug.WriteLine(response.Message);
+                                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhotoResponse));
+                                    PhotoResponse response = serializer.ReadObject(responseStream) as PhotoResponse;
+                                    if (response == null)
+                                        System.Diagnostics.Debug.WriteLine("Error uploading photo");
+                                    else
+                                        System.Diagnostics.Debug.WriteLine(response.Message);
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(ex.Message);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine(ex.Message);
-                        }
+                        callback(false, photo, updating);
                     }
                     catch (Exception ex)
                     {
-                        callback(false, photo, updating);
                         System.Diagnostics.Debug.WriteLine(ex.Message);
+                        callback(false, photo, updating);
                     }
                 }, null);
             }, null);
@@ -165,8 +164,100 @@ namespace Photohunt.Data
 
         public void SendPhotoMetadata(Photo photo, List<Photo> updating, Action<bool, Photo, List<Photo>> callback)
         {
-            System.Diagnostics.Debug.WriteLine("Updating photo metadata");
-            callback(true, photo, updating);
+            System.Diagnostics.Debug.WriteLine("Updating photo metadata " + photo.GetHashCode());
+
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(string.Format(@"{0}/photos/edit?token={1}&id={2}", BASE_URL, App.SettingsService.GameKey, photo.ServerId));
+            //request.ContentType = "application/json";
+            request.Method = @"PUT";
+
+            request.BeginGetRequestStream((asynchronousResult) =>
+            {
+                string clues = "";
+                foreach (Clue clue in photo.Clues)
+                {
+                    string bonuses = "";
+                    foreach (Clue bonus in clue.Bonuses)
+                    {
+                        bonuses += bonus.Id.ToString();
+                        bonuses += ',';
+                    }
+                    if (bonuses.Length > 1)
+                        bonuses = bonuses.Substring(0, bonuses.Length - 1);
+
+                    clues += string.Format("{{\"id\":{0},\"bonus_id\":[{1}]}},", clue.Id, bonuses);
+                }
+                if (clues.Length > 1)
+                    clues = clues.Substring(0, clues.Length - 1);
+
+                string json = string.Format("{{\"clues\":[{0}],\"judge\":{1},\"notes\":\"{2}\"}}", clues, photo.Judge.ToString().ToLower(), photo.Notes);
+
+                try
+                {
+                    using (Stream stream = request.EndGetRequestStream(asynchronousResult))
+                    {
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            writer.Write(json);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    callback(false, photo, updating);
+                }
+
+                request.BeginGetResponse((asynchResult) =>
+                {
+                    try
+                    {
+                        //Get the response from the request
+                        using (Stream responseStream = request.EndGetResponse(asynchResult).GetResponseStream())
+                        {
+                            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhotoResponse));
+                            PhotoResponse response = serializer.ReadObject(responseStream) as PhotoResponse;
+
+                            if (response.Status == Response.STATUS.ERR_SUCCESS)
+                            {
+                                callback(true, photo, updating);
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Error:" + response.Message);
+                                callback(false, photo, updating);
+                            }
+                        }
+                    }
+                    catch (WebException e)
+                    {
+                        if (System.Diagnostics.Debugger.IsAttached)
+                        {
+                            try
+                            {
+                                using (Stream responseStream = e.Response.GetResponseStream())
+                                {
+                                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhotoResponse));
+                                    PhotoResponse response = serializer.ReadObject(responseStream) as PhotoResponse;
+                                    if (response == null)
+                                        System.Diagnostics.Debug.WriteLine("Error updating photo");
+                                    else
+                                        System.Diagnostics.Debug.WriteLine(response.Message);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(ex.Message);
+                            }
+                        }
+                        callback(false, photo, updating);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                        callback(false, photo, updating);
+                    }
+                }, null);
+            }, null);
         }
 
         private void MakeRequest(string address, Type type, Action<Response> callback)

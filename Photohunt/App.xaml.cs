@@ -4,6 +4,7 @@ using Microsoft.Phone.Shell;
 using System.Windows.Navigation;
 using Photohunt.ViewModels;
 using Photohunt.Data;
+using System;
 
 namespace Photohunt
 {
@@ -14,6 +15,7 @@ namespace Photohunt
         public PhoneApplicationFrame RootFrame { get; private set; }
 
         public static object IsolatedStorageFileLock = new object();
+        public static object IsolatedStorageSettingsLock = new object();
 
         #region ViewModels
 
@@ -148,6 +150,10 @@ namespace Photohunt
                 // A navigation has failed; break into the debugger
                 System.Diagnostics.Debugger.Break();
             }
+            else
+            {
+                MessageBox.Show(e.Exception.ToString());
+            }
         }
 
         // Code to execute on Unhandled Exceptions
@@ -157,6 +163,10 @@ namespace Photohunt
             {
                 // An unhandled exception has occurred; break into the debugger
                 System.Diagnostics.Debugger.Break();
+            }
+            else
+            {
+                MessageBox.Show(e.ExceptionObject.ToString());
             }
         }
 

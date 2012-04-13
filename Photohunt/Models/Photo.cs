@@ -51,7 +51,7 @@ namespace Photohunt.Models
                 if (_notes != value)
                 {
                     _notes = value;
-                    _dirty = true;
+                    //_dirty = true;
                     NotifyPropertyChanged("Notes");
                 }
             }
@@ -69,7 +69,7 @@ namespace Photohunt.Models
                 if (_judge != value)
                 {
                     _judge = value;
-                    _dirty = true;
+                    //_dirty = true;
                     NotifyPropertyChanged("Judge");
                 }
             }
@@ -87,7 +87,7 @@ namespace Photohunt.Models
                 if (_clues != value)
                 {
                     _clues = value;
-                    _dirty = true;
+                    //_dirty = true;
                     NotifyPropertyChanged("Clues");
                 }
             }

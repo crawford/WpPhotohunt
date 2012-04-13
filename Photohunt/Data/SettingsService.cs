@@ -21,13 +21,16 @@ namespace Photohunt.Data
         public SettingsService() {
             _settings = IsolatedStorageSettings.ApplicationSettings;
 
-            if (!_settings.Contains(KEY_AUTOSTART_CAMERA)) _settings[KEY_AUTOSTART_CAMERA] = false;
-            if (!_settings.Contains(KEY_GAME_KEY))         _settings[KEY_GAME_KEY]         = "";
-            if (!_settings.Contains(KEY_ACTIVE_GAME))      _settings[KEY_ACTIVE_GAME]      = false;
+            lock (App.IsolatedStorageSettingsLock)
+            {
+                if (!_settings.Contains(KEY_AUTOSTART_CAMERA)) _settings[KEY_AUTOSTART_CAMERA] = false;
+                if (!_settings.Contains(KEY_GAME_KEY)) _settings[KEY_GAME_KEY] = "";
+                if (!_settings.Contains(KEY_ACTIVE_GAME)) _settings[KEY_ACTIVE_GAME] = false;
 
-            _autostartCamera = (bool)   _settings[KEY_AUTOSTART_CAMERA];
-            _gameKey         = (string) _settings[KEY_GAME_KEY];
-            _activeGame      = (bool)   _settings[KEY_ACTIVE_GAME];
+                _autostartCamera = (bool)_settings[KEY_AUTOSTART_CAMERA];
+                _gameKey = (string)_settings[KEY_GAME_KEY];
+                _activeGame = (bool)_settings[KEY_ACTIVE_GAME];
+            }
         }
 
         #region Getters and Setters
@@ -43,8 +46,11 @@ namespace Photohunt.Data
                 if (_autostartCamera != value)
                 {
                     _autostartCamera = value;
-                    _settings[KEY_AUTOSTART_CAMERA] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_AUTOSTART_CAMERA] = value;
+                        _settings.Save();
+                    }
                 }
             }
         }
@@ -60,8 +66,11 @@ namespace Photohunt.Data
                 if (_gameKey != value)
                 {
                     _gameKey = value;
-                    _settings[KEY_GAME_KEY] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_GAME_KEY] = value;
+                        _settings.Save();
+                    }
                 }
             }
         }
@@ -77,8 +86,11 @@ namespace Photohunt.Data
                 if (_activeGame != value)
                 {
                     _activeGame = value;
-                    _settings[KEY_ACTIVE_GAME] = value;
-                    _settings.Save();
+                    lock (App.IsolatedStorageSettingsLock)
+                    {
+                        _settings[KEY_ACTIVE_GAME] = value;
+                        _settings.Save();
+                    }
                 }
             }
         }
