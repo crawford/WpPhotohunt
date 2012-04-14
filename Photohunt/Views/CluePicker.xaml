@@ -39,7 +39,11 @@
                 <CheckBox VerticalAlignment="Center" IsEnabled="{Binding IsEnabled}" IsChecked="{Binding IsChecked, Mode=TwoWay}" Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}">
 					<TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
 				</CheckBox>
-				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
+				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}">
+					<TextBlock.Foreground>
+						<SolidColorBrush Color="{StaticResource PhoneForegroundColor}"/>
+					</TextBlock.Foreground>
+				</TextBlock> 
 			</Grid>
         </DataTemplate>
 		<DataTemplate x:Key="PivotHeaderTemplate">
