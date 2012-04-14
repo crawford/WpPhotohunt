@@ -27,6 +27,15 @@
 		</StackPanel>
 
 		<!--ContentPanel - place additional content here-->
-		<Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0"/>
+		<Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+			<TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Photohunt Client" VerticalAlignment="Top" Width="456" FontSize="48" TextAlignment="Center" Margin="0,66,0,0"/>
+			<TextBlock Margin="0,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" TextAlignment="Center" FontSize="24" Text="Alex Crawford, 2012" d:LayoutOverrides="HorizontalMargin"/>
+			<Button Content="Please Report Issues Here" Margin="0,0,0,117" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="Report_Click"/>
+			<TextBlock Height="30" Margin="0,134,0,0" Text="Version 0.1" VerticalAlignment="Top" TextAlignment="Center" />
+			<TextBlock Margin="0,296,0,284" TextWrapping="Wrap" Text="Simon McKenzie" HorizontalAlignment="Right" d:LayoutOverrides="Height" Width="456" FontSize="16" TextAlignment="Center"/>
+			<HyperlinkButton Content="ExifLib" Margin="0,261,0,0" VerticalAlignment="Top" d:LayoutOverrides="Width" TargetName="_nothing" NavigateUri="http://www.codeproject.com/Articles/36342/ExifLib-A-Fast-Exif-Data-Extractor-for-NET-2-0"/>
+			<TextBlock x:Name="TxtMemory" Margin="0,0,0,30" TextWrapping="Wrap" Text="0 MB used" VerticalAlignment="Bottom" TextAlignment="Center" FontSize="13.333"/>
+			<TextBlock x:Name="TxtMemoryPeak" Margin="0,0,0,8" TextWrapping="Wrap" Text="0 MB used" VerticalAlignment="Bottom" TextAlignment="Center" FontSize="13.333"/>
+		</Grid>
 	</Grid>
 </phone:PhoneApplicationPage>

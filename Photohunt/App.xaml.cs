@@ -114,6 +114,8 @@ namespace Photohunt
 
             // Phone-specific initialization
             InitializePhoneApplication();
+
+            Application.Current.Host.Settings.EnableFrameRateCounter = true;
         }
 
         // Code to execute when the application is launching (eg, from Start)

@@ -81,13 +81,14 @@ namespace Photohunt.Data
                     SyncPhotos();
                 p.PropertyChanged += new PropertyChangedEventHandler(Photo_PropertyChanged);
             }
+
+            App.MainViewModel.UpdatePointCount();
         }
 
         public void NewGame()
         {
             _photos.Clear();
             JudgedPhotoCount = 0;
-            _sync.Abort();
             SyncComplete = true;
             App.SettingsService.ActiveGame = true;
             NotifyPropertyChanged("ActiveGame");

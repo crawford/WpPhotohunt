@@ -2,3 +2,6 @@ Photohunt.suo
 Photohunt/Bin/
 Photohunt/Photohunt.csproj.user
 Photohunt/obj/
+ExifLib/Bin/
+ExifLib/ExifLib.csproj.user
+ExifLib/obj/

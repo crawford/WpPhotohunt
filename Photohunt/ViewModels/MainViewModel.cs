@@ -13,6 +13,7 @@ namespace Photohunt.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private Timer _clock;
+        private int _submittedPoints;
 
         public MainViewModel()
         {
@@ -22,6 +23,40 @@ namespace Photohunt.ViewModels
             {
                 System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() => { NotifyPropertyChanged("TimeRemaining"); });
             }, null, 0, 15 * 1000);
+        }
+
+        public void UpdatePointCount()
+        {
+            if (!App.ContestService.Categories.ContainsKey(@"all"))
+                return;
+
+            _submittedPoints = 0;
+            foreach (Clue clue in App.ContestService.Categories[@"all"])
+            {
+                foreach (Photo photo in App.ContestService.Photos)
+                {
+                    if (!photo.Judge)
+                        continue;
+
+                    foreach (Clue photoClue in photo.Clues)
+                    {
+                        if (photoClue.Id == clue.Id)
+                        {
+                            _submittedPoints += clue.Points;
+
+                            foreach (Clue bonus in clue.Bonuses)
+                            {
+                                foreach (Clue photoBonus in photoClue.Bonuses)
+                                {
+                                    if (photoBonus.Id == bonus.Id)
+                                        _submittedPoints += bonus.Points;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            NotifyPropertyChanged("SubmittedPoints");
         }
 
         private void ContestService_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -108,6 +143,14 @@ namespace Photohunt.ViewModels
             get
             {
                 return !App.ContestService.SyncComplete;
+            }
+        }
+
+        public int SubmittedPoints
+        {
+            get
+            {
+                return _submittedPoints;
             }
         }
 

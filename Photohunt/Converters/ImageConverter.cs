@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Windows;
+using ExifLib;
 
 namespace Photohunt.Converters
 {
@@ -23,7 +24,8 @@ namespace Photohunt.Converters
                     {
                         using (IsolatedStorageFileStream stream = store.OpenFile(uri.AbsolutePath, FileMode.Open, FileAccess.Read))
                         {
-                            image.SetSource(stream);
+                            JpegInfo info = ExifReader.ReadJpeg(stream);
+                            image.SetSource(new MemoryStream(info.ThumbnailData));
                         }
 
                     }

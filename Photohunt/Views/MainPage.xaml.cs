@@ -17,6 +17,8 @@ namespace Photohunt.Views
         public MainPage()
         {
             InitializeComponent();
+            AbbClues = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
+            AbbPhoto = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -28,8 +30,8 @@ namespace Photohunt.Views
                 DataContext = App.MainViewModel;
             }
 
-            ((ApplicationBarIconButton)ApplicationBar.Buttons[0]).IsEnabled = App.ContestService.ActiveGame;
-            ((ApplicationBarIconButton)ApplicationBar.Buttons[1]).IsEnabled = App.ContestService.ActiveGame;
+            AbbClues.IsEnabled = App.ContestService.ActiveGame;
+            AbbPhoto.IsEnabled = App.ContestService.ActiveGame && App.ContestService.PhotoCount < App.ContestService.MaxPhotoCount;
 
             if (_firstLaunch)
             {

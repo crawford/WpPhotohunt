@@ -7,6 +7,7 @@ using Microsoft.Phone.Tasks;
 using System.Windows;
 using System.IO.IsolatedStorage;
 using System.IO;
+using Microsoft.Phone.Shell;
 
 namespace Photohunt.Views
 {
@@ -18,6 +19,7 @@ namespace Photohunt.Views
         public PhotoInfoPage()
         {
             InitializeComponent();
+            AbbSave = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
             cameraCaptureTask = new CameraCaptureTask();
             cameraCaptureTask.Completed += new System.EventHandler<PhotoResult>(cameraCaptureTask_Completed);
         }
@@ -28,6 +30,9 @@ namespace Photohunt.Views
 
             if (DataContext == null)
                 DataContext = App.PhotoInfoViewModel;
+
+            ChkJudge.IsEnabled = ChkJudge.IsChecked.GetValueOrDefault(false) || (App.ContestService.JudgedPhotoCount < App.ContestService.MaxJudgedPhotoCount);
+            AbbSave.IsEnabled = App.ContestService.ActiveGame;
 
             if (App.PhotoInfoViewModel.CurrentPhoto == null)
             {
@@ -78,6 +83,9 @@ namespace Photohunt.Views
             App.PhotoInfoViewModel.CurrentPhoto.Notes = TxtNotes.Text;
             //TxtNotes.GetBindingExpression(TextBox.TextProperty).UpdateSource();
             ChkJudge.GetBindingExpression(CheckBox.IsCheckedProperty).UpdateSource();
+
+            App.MainViewModel.UpdatePointCount();
+
             NavigationService.GoBack();
         }
 
@@ -90,10 +98,6 @@ namespace Photohunt.Views
         {
             if (e.TaskResult == TaskResult.OK)
             {
-                BitmapImage photo = new BitmapImage();
-                photo.SetSource(e.ChosenPhoto);
-                ImgPhoto.Source = photo;
-
                 lock (App.IsolatedStorageFileLock)
                 {
                     using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
@@ -104,8 +108,10 @@ namespace Photohunt.Views
                         string fileName = Path.Combine(App.PHOTO_DIRECTORY, Guid.NewGuid().ToString());
                         using (IsolatedStorageFileStream stream = store.CreateFile(fileName))
                         {
-                            WriteableBitmap wb = new WriteableBitmap(photo);
-                            wb.SaveJpeg(stream, wb.PixelWidth, wb.PixelHeight, 0, 100);
+                            byte[] buffer = new byte[4096];
+                            int bytesRead;
+                            while ((bytesRead = e.ChosenPhoto.Read(buffer, 0, buffer.Length)) != 0)
+                                stream.Write(buffer, 0, bytesRead);
                         }
 
                         App.PhotoInfoViewModel.CurrentPhoto = App.ContestService.CreatePhoto(new Uri(fileName, UriKind.Absolute));
