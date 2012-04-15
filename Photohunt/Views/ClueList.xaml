@@ -6,7 +6,7 @@
 	xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
+	mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="768"
 	x:Class="Photohunt.ClueList"
 	FontFamily="{StaticResource PhoneFontFamilyNormal}"
 	FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -36,7 +36,7 @@
 		
 		<DataTemplate x:Key="ClueListItemTemplate">
         	<Grid d:DesignWidth="456" Style="{Binding IsBonus, Converter={StaticResource ClueGridStyleConverter}}">
-				<TextBlock Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}" Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,100,0" />
+				<TextBlock Style="{Binding IsBonus, Converter={StaticResource ClueDescriptionStyleConverter}}" Text="{Binding Description}" TextWrapping="Wrap" VerticalAlignment="Center" />
 				<TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" Text="{Binding Points, StringFormat='\{0\} pts.'}" Width="100" TextAlignment="Right" VerticalAlignment="Center" FontSize="{StaticResource PhoneFontSizeSmall}"/> 
 			</Grid>
         </DataTemplate>
