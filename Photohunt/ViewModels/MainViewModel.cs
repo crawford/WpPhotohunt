@@ -35,6 +35,7 @@ namespace Photohunt.ViewModels
             {
                 foreach (Photo photo in App.ContestService.Photos)
                 {
+                    bool found = false;
                     if (!photo.Judge)
                         continue;
 
@@ -43,17 +44,24 @@ namespace Photohunt.ViewModels
                         if (photoClue.Id == clue.Id)
                         {
                             _submittedPoints += clue.Points;
+                            found = true;
 
                             foreach (Clue bonus in clue.Bonuses)
                             {
                                 foreach (Clue photoBonus in photoClue.Bonuses)
                                 {
                                     if (photoBonus.Id == bonus.Id)
+                                    {
                                         _submittedPoints += bonus.Points;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
+
+                    if (found)
+                        break;
                 }
             }
             NotifyPropertyChanged("SubmittedPoints");
